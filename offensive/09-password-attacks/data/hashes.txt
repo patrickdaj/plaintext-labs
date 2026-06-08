@@ -1,0 +1,25 @@
+# Meridian Financial — dumped password hashes
+# Format: username:hash_type:hash
+# These are hashes of passwords from the rockyou.txt wordlist
+# (for teaching purposes only — never commit real credentials)
+
+# MD5 hashes (hashcat mode -m 0)
+jsmith:md5:5f4dcc3b5aa765d61d8327deb882cf99
+bmartin:md5:e10adc3949ba59abbe56e057f20f883e
+admin:md5:21232f297a57a5a743894a0e4a801fc3
+dbuser:md5:7c6a180b36896a0a8c02787eeafb0e4c
+backup-svc:md5:e99a18c428cb38d5f260853678922e03
+
+# NTLM hashes (hashcat mode -m 1000)
+jsmith:ntlm:8846f7eaee8fb117ad06bdd830b7586c
+bmartin:ntlm:fc525c9683e8fe067095ba2ddc971889
+administrator:ntlm:aad3b435b51404eeaad3b435b51404ee
+
+# bcrypt (hashcat mode -m 3200, deliberately resistant)
+svc-account:bcrypt:$2b$12$GhvMmNVjRW29ulnudl.LbuAnUtN/LRfe1JsBm1Vfw/JAp/Em4J1G2
+
+# SHA-256 (hashcat mode -m 1400)
+apikey:sha256:5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5
+
+# SHA-1 (hashcat mode -m 100)
+webuser:sha1:7c4a8d09ca3762af61e59520943dc26494f8941b
