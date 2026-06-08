@@ -1,0 +1,20 @@
+# One-command lab environment for Module 04 — Network Monitoring.
+# The 'lab' service runs the Python analyzer over bundled Zeek logs.
+# The 'zeek' service is for interactive use: drop a PCAP into this dir and
+# run `make zeek` or `docker compose run --rm zeek zeek -r /lab/your.pcap`
+services:
+  lab:
+    build: .
+    image: plaintext/network-monitoring
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity
+  zeek:
+    image: zeek/zeek:6.2.1
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: zeek --version
+    profiles:
+      - zeek
