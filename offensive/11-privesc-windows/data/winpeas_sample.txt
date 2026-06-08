@@ -1,0 +1,59 @@
+====================================================================
+ADVISORY: This is a synthetic sample of winPEAS output for the triage
+demo. Run winPEAS.exe on the actual VM to get real output.
+====================================================================
+
+LEGEND:
+ Red/Magenta = high interest
+ Cyan = medium interest
+ Green = low interest
+
+[+] Checking AlwaysInstallElevated
+  AlwaysInstallElevated set to 1 in HKLM!
+  AlwaysInstallElevated set to 1 in HKCU!
+  [!] This allows any user to install .msi files as NT AUTHORITY\SYSTEM
+
+[+] Checking service permissions
+  Name: MeridianUpdater
+  DisplayName: Meridian Updater Service
+  BinaryPath: C:\Program Files\Meridian Financial Services\MeridianUpdater.exe
+  [!] Unquoted service path — possible hijack: C:\Program.exe or C:\Program Files\Meridian.exe
+
+[+] Checking service binary permissions
+  MeridianUpdater (C:\Program Files\Meridian Financial Services\MeridianUpdater.exe)
+    File Permissions: Everyone [AllAccess]
+    [!] User can replace/modify the service binary
+
+[+] Checking current token privileges
+  SeImpersonatePrivilege: Enabled
+  [!] SeImpersonatePrivilege — hot potato / rogue potato exploitation possible
+
+[+] Checking scheduled tasks
+  Task: \MeridianDailyBackup
+  Run As: SYSTEM
+  Action: C:\Scripts\daily_backup.bat
+  File permissions on C:\Scripts\daily_backup.bat: Everyone [AllAccess]
+  [!] World-writable script runs as SYSTEM
+
+[+] Checking registry autoruns
+  HKLM\Software\Microsoft\Windows\CurrentVersion\Run
+    MeridianAgent = C:\Program Files (x86)\Meridian\agent.exe
+    File permissions: Everyone [Modify]
+
+[+] Checking DLL hijacking opportunities (writable directories in service PATH)
+  Writable path in service IMAGE_PATH: C:\Meridian\lib\
+  [!] Potential DLL hijack in service directory
+
+[+] Checking AutoLogon credentials
+  No autologon credentials found.
+
+[+] Checking Credential Manager / DPAPI blobs
+  No cached credentials found.
+
+[+] Checking patch level
+  OS: Windows Server 2019 (10.0.17763.0)
+  [!] Missing patches: KB5004945, KB5007206
+
+[+] Checking antivirus
+  Windows Defender: enabled (real-time monitoring)
+  [i] Defender active — standard shellcode/msfvenom payloads may be caught
