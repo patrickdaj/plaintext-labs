@@ -1,0 +1,9 @@
+# One-command lab environment for Module 01 — Telemetry.
+services:
+  lab:
+    build: .
+    image: plaintext/telemetry
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity
