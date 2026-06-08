@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><title>Meridian Financial — Internal Systems</title></head>
+<body>
+<h1>CONFIDENTIAL — Internal Systems Inventory</h1>
+<p>This host is on the 172.21.0.0/24 internal segment (not reachable from the DMZ).</p>
+<table border="1">
+<tr><th>Host</th><th>IP</th><th>Role</th></tr>
+<tr><td>fin-db01</td><td>172.21.0.10</td><td>Finance database (SQL Server)</td></tr>
+<tr><td>hr-db01</td><td>172.21.0.11</td><td>HR database (PostgreSQL)</td></tr>
+<tr><td>ad-dc01</td><td>172.21.0.20</td><td>Active Directory domain controller</td></tr>
+<tr><td>backup-srv</td><td>172.21.0.30</td><td>Tape backup server (NFS exposed)</td></tr>
+</table>
+<p><em>Access restricted to internal segment. Contact IT Security if you reached this page unexpectedly.</em></p>
+</body>
+</html>

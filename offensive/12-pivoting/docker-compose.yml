@@ -1,0 +1,38 @@
+services:
+  # Simulated internal target — only reachable from the internal network
+  internal-target:
+    image: python:3.12-slim
+    command: python3 -m http.server 80 --directory /data
+    volumes:
+      - ./data:/data:ro
+    networks:
+      - internal
+
+  # Dual-homed "compromised" host — on both DMZ and internal networks
+  # Runs the TCP relay: forwards DMZ:8888 → internal-target:80
+  pivot:
+    build: .
+    image: plaintext/pivoting-lab
+    command: python3 relay.py 0.0.0.0 8888 internal-target 80
+    networks:
+      - dmz
+      - internal
+    depends_on:
+      - internal-target
+
+  # "Attacker" — on DMZ only; cannot reach internal-target directly
+  attacker:
+    build: .
+    image: plaintext/pivoting-lab
+    networks:
+      - dmz
+    depends_on:
+      - pivot
+    command: sleep infinity
+
+networks:
+  dmz:
+    driver: bridge
+  internal:
+    driver: bridge
+    internal: true    # no external routing; only containers on this network can communicate
