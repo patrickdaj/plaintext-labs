@@ -1,0 +1,71 @@
+[
+  {"source": "sysmon", "EventID": 1, "ts": "2024-03-15T09:12:03Z", "host": "WS-JSMITH",
+   "user": "MERIDIAN\\jsmith", "Image": "C:\\Windows\\explorer.exe",
+   "ParentImage": "C:\\Windows\\System32\\userinit.exe",
+   "CommandLine": "C:\\Windows\\Explorer.EXE"},
+
+  {"source": "sysmon", "EventID": 1, "ts": "2024-03-15T09:12:47Z", "host": "WS-JSMITH",
+   "user": "MERIDIAN\\jsmith",
+   "Image": "C:\\Windows\\System32\\cmd.exe",
+   "ParentImage": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+   "CommandLine": "cmd.exe /c powershell.exe -nop -w hidden -enc JABjAD0ATgBlAHcALQBPAGIAagBlAGMAdAA="},
+
+  {"source": "sysmon", "EventID": 1, "ts": "2024-03-15T09:12:48Z", "host": "WS-JSMITH",
+   "user": "MERIDIAN\\jsmith",
+   "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+   "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+   "CommandLine": "powershell.exe -nop -w hidden -enc JABjAD0ATgBlAHcALQBPAGIAagBlAGMAdAA="},
+
+  {"source": "sysmon", "EventID": 13, "ts": "2024-03-15T09:13:01Z", "host": "WS-JSMITH",
+   "user": "MERIDIAN\\jsmith",
+   "TargetObject": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\WindowsUpdateHelper",
+   "Details": "C:\\ProgramData\\updater.exe"},
+
+  {"source": "sysmon", "EventID": 3, "ts": "2024-03-15T09:13:09Z", "host": "WS-JSMITH",
+   "user": "MERIDIAN\\jsmith",
+   "Image": "C:\\Windows\\System32\\certutil.exe",
+   "DestinationIp": "185.220.101.47", "DestinationPort": "80"},
+
+  {"source": "zeek", "EventID": "conn", "ts": "2024-03-15T09:13:09Z", "host": "FW-EDGE",
+   "src_ip": "10.0.1.55", "dst_ip": "185.220.101.47", "dst_port": 80,
+   "proto": "tcp", "orig_bytes": 8650000, "service": "http"},
+
+  {"source": "zeek", "EventID": "conn", "ts": "2024-03-15T08:45:00Z", "host": "FW-EDGE",
+   "src_ip": "10.0.1.55", "dst_ip": "142.250.185.46", "dst_port": 443,
+   "proto": "tcp", "orig_bytes": 4200, "service": "ssl"},
+
+  {"source": "suricata", "EventID": "alert", "ts": "2024-03-15T09:13:10Z", "host": "IDS-01",
+   "src_ip": "10.0.1.55", "dst_ip": "185.220.101.47", "dst_port": 80,
+   "signature": "ET POLICY PE EXE or DLL Windows file download HTTP",
+   "category": "Potentially Bad Traffic", "severity": 2},
+
+  {"source": "sshd", "EventID": "auth_fail", "ts": "2024-03-15T09:20:11Z", "host": "SRV-01",
+   "user": "root", "src_ip": "45.155.204.42", "message": "Failed password for root"},
+  {"source": "sshd", "EventID": "auth_fail", "ts": "2024-03-15T09:20:12Z", "host": "SRV-01",
+   "user": "root", "src_ip": "45.155.204.42", "message": "Failed password for root"},
+  {"source": "sshd", "EventID": "auth_fail", "ts": "2024-03-15T09:20:13Z", "host": "SRV-01",
+   "user": "admin", "src_ip": "45.155.204.42", "message": "Failed password for admin"},
+  {"source": "sshd", "EventID": "auth_fail", "ts": "2024-03-15T09:20:14Z", "host": "SRV-01",
+   "user": "jsmith", "src_ip": "45.155.204.42", "message": "Failed password for jsmith"},
+  {"source": "sshd", "EventID": "auth_fail", "ts": "2024-03-15T09:20:15Z", "host": "SRV-01",
+   "user": "jenkins", "src_ip": "45.155.204.42", "message": "Failed password for jenkins"},
+  {"source": "sshd", "EventID": "auth_success", "ts": "2024-03-15T09:20:16Z", "host": "SRV-01",
+   "user": "backup-svc", "src_ip": "45.155.204.42", "message": "Accepted password for backup-svc"},
+
+  {"source": "sshd", "EventID": "auth_fail", "ts": "2024-03-15T07:30:01Z", "host": "SRV-01",
+   "user": "jsmith", "src_ip": "10.0.1.55", "message": "Failed password — wrong key"},
+  {"source": "sshd", "EventID": "auth_success", "ts": "2024-03-15T07:30:05Z", "host": "SRV-01",
+   "user": "jsmith", "src_ip": "10.0.1.55", "message": "Accepted publickey for jsmith"},
+
+  {"source": "sysmon", "EventID": 1, "ts": "2024-03-15T08:01:00Z", "host": "WS-JSMITH",
+   "user": "MERIDIAN\\jsmith",
+   "Image": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+   "ParentImage": "C:\\Windows\\explorer.exe",
+   "CommandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\""},
+
+  {"source": "sysmon", "EventID": 1, "ts": "2024-03-15T10:05:11Z", "host": "WS-JSMITH",
+   "user": "MERIDIAN\\jsmith",
+   "Image": "C:\\ProgramData\\updater.exe",
+   "ParentImage": "C:\\Windows\\System32\\taskhostw.exe",
+   "CommandLine": "C:\\ProgramData\\updater.exe --persist"}
+]
