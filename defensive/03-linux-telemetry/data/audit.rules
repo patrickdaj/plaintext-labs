@@ -1,0 +1,16 @@
+## Meridian Financial — baseline auditd rules
+## Deploy: auditctl -R /etc/audit/rules.d/meridian.rules
+
+# Capture all process executions
+-a always,exit -F arch=b64 -S execve -k execve_watch
+-a always,exit -F arch=b32 -S execve -k execve_watch
+
+# Sensitive file access
+-w /etc/passwd -p war -k sensitive_file
+-w /etc/shadow -p war -k sensitive_file
+-w /etc/sudoers -p war -k sensitive_file
+
+# Privileged command execution
+-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=-1 -k priv_exec
+-a always,exit -F path=/usr/sbin/useradd -F perm=x -k user_mgmt
+-a always,exit -F path=/usr/sbin/userdel -F perm=x -k user_mgmt
