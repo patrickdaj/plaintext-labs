@@ -1,0 +1,9 @@
+# One-command lab environment for Module 14 — Threat Intelligence.
+services:
+  lab:
+    build: .
+    image: plaintext/threat-intel
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity
