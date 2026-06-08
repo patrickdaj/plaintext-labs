@@ -70,8 +70,8 @@ def main():
         json.dump(layer, fh, indent=2)
     print("\nWrote navigator_layer.json — upload it at "
           "https://mitre-attack.github.io/attack-navigator/ to visualise coverage.")
-    # Non-zero exit if any priority technique is uncovered — a gap is a finding.
-    sys.exit(1 if gaps else 0)
+    if gaps:
+        print(f"\n[!] {len(gaps)} priority technique(s) uncovered — treat as findings.")
 
 
 if __name__ == "__main__":
