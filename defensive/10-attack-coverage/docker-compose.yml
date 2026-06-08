@@ -1,0 +1,9 @@
+# One-command lab environment for Module 10 — ATT&CK Mapping & Coverage.
+services:
+  lab:
+    build: .
+    image: plaintext/attack-coverage
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

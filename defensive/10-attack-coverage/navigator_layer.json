@@ -1,0 +1,38 @@
+{
+  "name": "Plaintext \u2014 Meridian detection coverage",
+  "domain": "enterprise-attack",
+  "versions": {
+    "layer": "4.5",
+    "navigator": "4.9.1",
+    "attack": "14"
+  },
+  "description": "Generated from the lab's Sigma rule set.",
+  "techniques": [
+    {
+      "techniqueID": "T1003.001",
+      "score": 100,
+      "color": "#2e7d32",
+      "comment": "LSASS Memory Access"
+    },
+    {
+      "techniqueID": "T1059.001",
+      "score": 100,
+      "color": "#2e7d32",
+      "comment": "PowerShell Encoded Command Execution"
+    },
+    {
+      "techniqueID": "T1547.001",
+      "score": 100,
+      "color": "#2e7d32",
+      "comment": "Run Key Persistence"
+    }
+  ],
+  "gradient": {
+    "colors": [
+      "#ffffff",
+      "#2e7d32"
+    ],
+    "minValue": 0,
+    "maxValue": 100
+  }
+}

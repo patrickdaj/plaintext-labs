@@ -1,0 +1,8 @@
+# Techniques the Meridian SOC has decided it must cover (one ATT&CK ID per line).
+# The coverage report flags any of these your rule set does NOT detect — your blind spots.
+T1059.001   # PowerShell
+T1547.001   # Registry Run Key persistence
+T1003.001   # LSASS credential dumping
+T1021.001   # Remote Desktop lateral movement
+T1486       # Data encrypted for impact (ransomware)
+T1566.001   # Spearphishing attachment
