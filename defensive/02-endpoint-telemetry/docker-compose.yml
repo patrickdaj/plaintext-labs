@@ -1,0 +1,9 @@
+# One-command lab environment for Module 02 — Endpoint Telemetry.
+services:
+  lab:
+    build: .
+    image: plaintext/endpoint-telemetry
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity
