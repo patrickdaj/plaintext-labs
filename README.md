@@ -40,6 +40,23 @@ make down    # stop it
 
 Then follow that module's `lab.md` in the [curriculum](https://github.com/plaintext-security/plaintext).
 
+## Zero local setup (optional)
+
+Don't want to install Docker locally? This repo ships a [`.devcontainer`](.devcontainer/devcontainer.json),
+so it opens with everything ready (Docker-in-Docker + tooling) in any of:
+
+- **GitHub Codespaces** — one click ("Code → Codespaces → Create"), runs in your browser, free monthly tier.
+- **DevPod** — open-source and provider-agnostic (`devpod up`), runs the same workspace locally or on any cloud.
+- **VS Code Dev Containers** — "Reopen in Container" locally.
+
+Then `cd <track>/<module> && make up` as usual.
+
+> **Local `make up` is always the baseline** — the curriculum never *requires* a paid cloud. Codespaces/DevPod
+> is just an optional accelerant. And it's selective: it's ideal for the **web, CLI, defensive, and cloud**
+> labs, but **forensics, malware-RE, and Active Directory** labs need GUI tools, nested virtualization, or full
+> VMs and should run locally. The **malware** track must not run in hosted Codespaces (sample-handling / ToS) —
+> use a local isolated VM.
+
 ## Conventions (every lab dir follows these)
 
 - **One command up.** A `docker-compose.yml` + a `Makefile` exposing `up` / `down` / `reset` /
