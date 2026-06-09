@@ -1,0 +1,23 @@
+# One-command lab environment for Offensive Module 15 — PowerShell Offensive Tradecraft.
+# `web` is the attacker's payload host; `attacker` is where you build and fire the cradle.
+# `make demo` runs the worked example from `attacker` against `web`.
+services:
+  web:
+    build: .
+    image: plaintext/powershell-tradecraft
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    # Serve the benign payload over HTTP (the "staging server" a real cradle pulls from).
+    command: ["pwsh", "-NoProfile", "-File", "/lab/serve.ps1"]
+
+  attacker:
+    build: .
+    image: plaintext/powershell-tradecraft
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    depends_on:
+      - web
+    # Keep it alive for `make shell` / interactive work.
+    command: ["sleep", "infinity"]

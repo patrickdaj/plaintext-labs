@@ -1,0 +1,11 @@
+# One-command lab environment for Defensive Module 13 — PowerShell Logging & Hunting.
+# `make up` builds it; `make shell` drops you into pwsh; `make demo` runs the worked hunt.
+services:
+  lab:
+    build: .
+    image: plaintext/powershell-logging-hunting
+    working_dir: /lab
+    # Mount the dir so the hunt/rule you write is editable on the host and live in the container.
+    volumes:
+      - ./:/lab
+    command: ["sleep", "infinity"]
