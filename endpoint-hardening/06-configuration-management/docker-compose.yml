@@ -1,0 +1,12 @@
+# Module 06 — Configuration Management
+# Ansible controller + target (both localhost in single container for simplicity)
+services:
+  lab:
+    build: .
+    image: plaintext/configuration-management:1.0
+    container_name: config-management-lab
+    privileged: true
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

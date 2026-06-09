@@ -1,0 +1,28 @@
+# Module 05 — TLS Deep Dive
+# nginx (weak + strong config) + testssl.sh scanner
+services:
+  nginx:
+    image: nginx:1.27.0-alpine
+    container_name: tls-nginx
+    volumes:
+      - ./data/nginx-weak.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./data/gen-cert.sh:/docker-entrypoint.d/99-gen-cert.sh:ro
+    ports:
+      - "8443:443"
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  lab:
+    build: .
+    image: plaintext/tls-deep-dive:1.0
+    container_name: tls-lab
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    depends_on:
+      nginx:
+        condition: service_healthy
+    command: sleep infinity

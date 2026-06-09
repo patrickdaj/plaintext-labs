@@ -1,0 +1,13 @@
+# Module 09 — Local Privilege-Escalation Defense
+services:
+  lab:
+    build: .
+    image: plaintext/privesc-defense:1.0
+    container_name: privesc-defense-lab
+    privileged: true
+    security_opt:
+      - apparmor=unconfined
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

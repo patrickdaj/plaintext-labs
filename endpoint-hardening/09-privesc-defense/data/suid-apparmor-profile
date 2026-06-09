@@ -1,0 +1,30 @@
+#include <tunables/global>
+
+# AppArmor profile for the deliberately misconfigured SUID find binary
+# Prevents exploitation even if the SUID bit is present
+/usr/local/bin/find-suid {
+  #include <abstractions/base>
+
+  # Allow basic file reading for the find operation
+  / r,
+  /** r,
+
+  # DENY: cannot execute arbitrary binaries (closes the GTFOBins -exec technique)
+  deny /** x,
+  deny /bin/sh x,
+  deny /bin/bash x,
+  deny /usr/bin/python3 x,
+
+  # DENY: cannot write to sensitive locations
+  deny /etc/** w,
+  deny /root/** rw,
+  deny /home/**/.ssh/** rw,
+
+  # DENY: cannot read credential files
+  deny /etc/shadow r,
+  deny /etc/sudoers r,
+  deny /etc/sudoers.d/** r,
+
+  # Allow: can read /proc for its normal operation
+  /proc/** r,
+}

@@ -1,0 +1,11 @@
+# Module 07 — Compliance Scoring & Auditing
+services:
+  lab:
+    build: .
+    image: plaintext/compliance-auditing:1.0
+    container_name: compliance-auditing-lab
+    privileged: true
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

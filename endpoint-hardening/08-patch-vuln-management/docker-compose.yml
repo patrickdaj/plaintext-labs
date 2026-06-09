@@ -1,0 +1,11 @@
+# Module 08 — Patch & Vulnerability Management
+services:
+  lab:
+    build: .
+    image: plaintext/patch-vuln-management:1.0
+    container_name: patch-vuln-lab
+    privileged: true
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

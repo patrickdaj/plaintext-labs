@@ -1,0 +1,26 @@
+# Vulnerability 3: secret printed to log
+name: Sigma Lint Pipeline
+
+on:
+  pull_request:
+    paths:
+      - 'rules/**.yml'
+
+jobs:
+  sigma-lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install sigma-cli
+        run: pip install sigma-cli
+
+      - name: Debug — print API token  # VULNERABLE: secret in log
+        run: echo "token=${{ secrets.API_TOKEN }}"
+
+      - name: Run sigma check
+        run: sigma check rules/
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}

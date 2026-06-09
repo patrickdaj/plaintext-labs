@@ -1,0 +1,30 @@
+title: Office Application Spawning Shell Process
+id: b2c3d4e5-f6a7-8901-bcde-f12345678901
+status: test
+description: Detects Office applications (Word, Excel, PowerPoint) spawning command-line shells, which is a common indicator of macro-based malware.
+references:
+  - https://attack.mitre.org/techniques/T1566/001/
+author: Meridian Detection Engineering
+date: 2024-11-15
+tags:
+  - attack.execution
+  - attack.t1566.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    ParentImage|endswith:
+      - '\WINWORD.EXE'
+      - '\EXCEL.EXE'
+      - '\POWERPNT.EXE'
+      - '\MSPUB.EXE'
+    Image|endswith:
+      - '\cmd.exe'
+      - '\powershell.exe'
+      - '\wscript.exe'
+      - '\cscript.exe'
+  condition: selection
+falsepositives:
+  - Legitimate macro-enabled document processing tools
+level: high

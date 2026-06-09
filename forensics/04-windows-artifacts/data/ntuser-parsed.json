@@ -1,0 +1,71 @@
+{
+  "hive": "NTUSER.DAT",
+  "description": "Synthetic registry hive for Meridian Financial forensics lab",
+  "note": "Pre-parsed representation. In a real investigation, parse with python-registry or RegRipper.",
+  "keys": {
+    "Software\\Microsoft\\Windows\\CurrentVersion\\Run": {
+      "last_write": "2024-03-15T02:11:10Z",
+      "values": {
+        "WindowsDefenderUpdate": {
+          "type": "REG_SZ",
+          "data": "C:\\ProgramData\\Microsoft\\WindowsDefender\\Update\\svcupd.exe -k network"
+        },
+        "OneDriveSync": {
+          "type": "REG_SZ",
+          "data": "C:\\Users\\svc_batch_finance\\AppData\\Local\\Microsoft\\OneDrive\\OneDrive.exe /background"
+        },
+        "BackupHelper": {
+          "type": "REG_SZ",
+          "data": "powershell.exe -WindowStyle Hidden -enc JABjAD0ATgBlAHcALQBPAGIAagBlAGMAdAAgAFMAeQBzAHQAZQBtAC4ATgBlAHQ="
+        }
+      }
+    },
+    "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs": {
+      "last_write": "2024-03-15T02:15:44Z",
+      "values": {
+        "MRU_0": {
+          "type": "REG_BINARY",
+          "data": "Q1_2024_payroll.xlsx"
+        },
+        "MRU_1": {
+          "type": "REG_BINARY",
+          "data": "board_minutes_confidential.docx"
+        },
+        "MRU_2": {
+          "type": "REG_BINARY",
+          "data": "Q1_budget_restricted.xlsx"
+        },
+        "MRUList": {
+          "type": "REG_SZ",
+          "data": "012"
+        }
+      }
+    },
+    "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\TypedPaths": {
+      "last_write": "2024-03-15T02:12:55Z",
+      "values": {
+        "url1": {
+          "type": "REG_SZ",
+          "data": "\\\\meridian-fs01\\finance\\restricted"
+        },
+        "url2": {
+          "type": "REG_SZ",
+          "data": "\\\\10.99.4.22\\drop$"
+        },
+        "url3": {
+          "type": "REG_SZ",
+          "data": "C:\\ProgramData\\Microsoft\\WindowsDefender\\Update"
+        }
+      }
+    },
+    "Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Compatibility Assistant\\Store": {
+      "last_write": "2024-03-15T02:11:08Z",
+      "values": {
+        "C:\\ProgramData\\Microsoft\\WindowsDefender\\Update\\svcupd.exe": {
+          "type": "REG_DWORD",
+          "data": "0x00000001"
+        }
+      }
+    }
+  }
+}

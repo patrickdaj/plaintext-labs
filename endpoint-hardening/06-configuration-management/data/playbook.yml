@@ -1,0 +1,134 @@
+---
+# Meridian Financial — CIS-Equivalent Linux Hardening Playbook
+# Applies 5 CIS-equivalent controls to Ubuntu 22.04
+# Run: ansible-playbook -i inventory data/playbook.yml
+
+- name: Meridian Linux Hardening — CIS Level 1 Equivalent
+  hosts: target
+  gather_facts: yes
+  become: yes
+
+  vars:
+    ssh_permit_root_login: "no"
+    umask_value: "027"
+    password_min_length: 14
+
+  tasks:
+
+    # Control 1: Disable root SSH login (CIS 5.2.10)
+    - name: "[CIS 5.2.10] Disable root SSH login"
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin {{ ssh_permit_root_login }}'
+        state: present
+        backup: yes
+      notify: Restart sshd
+      tags: ssh
+
+    # Control 2: Set password complexity (CIS 5.4.1)
+    - name: "[CIS 5.4.1] Ensure pam_pwquality is configured with minlen=14"
+      lineinfile:
+        path: /etc/security/pwquality.conf
+        regexp: '^#?minlen'
+        line: 'minlen = {{ password_min_length }}'
+        state: present
+        create: yes
+      tags: password
+
+    - name: "[CIS 5.4.1] Ensure pam_pwquality minclass=4 (character classes)"
+      lineinfile:
+        path: /etc/security/pwquality.conf
+        regexp: '^#?minclass'
+        line: 'minclass = 4'
+        state: present
+      tags: password
+
+    # Control 3: Enable auditd (CIS 4.1.1)
+    - name: "[CIS 4.1.1] Ensure auditd is installed"
+      package:
+        name: auditd
+        state: present
+      tags: auditd
+
+    - name: "[CIS 4.1.1] Ensure auditd is enabled and running"
+      service:
+        name: auditd
+        state: started
+        enabled: yes
+      tags: auditd
+
+    # Control 4: Set secure default umask (CIS 5.5.5)
+    - name: "[CIS 5.5.5] Set default umask to 027 in /etc/login.defs"
+      lineinfile:
+        path: /etc/login.defs
+        regexp: '^UMASK'
+        line: 'UMASK           {{ umask_value }}'
+        state: present
+      tags: umask
+
+    - name: "[CIS 5.5.5] Set default umask to 027 in /etc/profile"
+      lineinfile:
+        path: /etc/profile
+        regexp: '^umask'
+        line: 'umask {{ umask_value }}'
+        state: present
+        create: yes
+      tags: umask
+
+    # Control 5: Configure sysctl hardening (CIS 3.x / kernel hardening)
+    - name: "[CIS 3.x] Enable ASLR (kernel.randomize_va_space=2)"
+      sysctl:
+        name: kernel.randomize_va_space
+        value: '2'
+        state: present
+        sysctl_file: /etc/sysctl.d/99-meridian-hardening.conf
+        reload: yes
+      tags: sysctl
+
+    - name: "[CIS 3.2.2] Disable ICMP redirect acceptance"
+      sysctl:
+        name: net.ipv4.conf.all.accept_redirects
+        value: '0'
+        state: present
+        sysctl_file: /etc/sysctl.d/99-meridian-hardening.conf
+        reload: yes
+      tags: sysctl
+
+    - name: "[CIS 3.2.4] Log suspicious packets (martians)"
+      sysctl:
+        name: net.ipv4.conf.all.log_martians
+        value: '1'
+        state: present
+        sysctl_file: /etc/sysctl.d/99-meridian-hardening.conf
+        reload: yes
+      tags: sysctl
+
+    # Verification block: confirm each control
+    - name: "[VERIFY] Check PermitRootLogin is 'no'"
+      command: grep -E "^PermitRootLogin no" /etc/ssh/sshd_config
+      register: ssh_check
+      failed_when: ssh_check.rc != 0
+      changed_when: false
+      tags: verify
+
+    - name: "[VERIFY] Check minlen=14 in pwquality.conf"
+      command: grep "minlen = 14" /etc/security/pwquality.conf
+      register: pwq_check
+      failed_when: pwq_check.rc != 0
+      changed_when: false
+      tags: verify
+
+    - name: "[VERIFY] Check ASLR is enabled"
+      command: sysctl kernel.randomize_va_space
+      register: aslr_check
+      failed_when: "'2' not in aslr_check.stdout"
+      changed_when: false
+      tags: verify
+
+  handlers:
+    - name: Restart sshd
+      service:
+        name: sshd
+        state: restarted
+      ignore_errors: yes

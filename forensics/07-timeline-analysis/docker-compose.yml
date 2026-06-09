@@ -1,0 +1,10 @@
+# Module 07 — Timeline Analysis lab environment.
+# plaso (log2timeline) container; bundled artifacts in data/artifacts/, pre-computed timeline in data/timeline.csv.
+services:
+  lab:
+    build: .
+    image: plaintext/timeline-analysis:1.0
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

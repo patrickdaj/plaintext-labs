@@ -1,0 +1,6 @@
+---
+- name: Meridian Linux Hardening Baseline
+  hosts: targets
+  become: true
+  roles:
+    - role: hardening

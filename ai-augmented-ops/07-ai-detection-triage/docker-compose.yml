@@ -1,0 +1,27 @@
+# Module 07 — AI-Assisted Detection & Triage
+services:
+  ollama:
+    image: ollama/ollama:0.3.14
+    container_name: ai07-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=15m
+
+  lab:
+    image: python:3.12-slim
+    container_name: ai07-lab
+    depends_on:
+      - ollama
+    volumes:
+      - ./:/lab
+    working_dir: /lab
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-tinyllama}
+    command: sleep infinity
+
+volumes:
+  ollama-data:

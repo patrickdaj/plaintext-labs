@@ -1,0 +1,12 @@
+# Module 06 — Memory Forensics lab environment.
+# Volatility3 container. Full memory images are NOT committed (too large).
+# data/memory-sample.json contains pre-processed Volatility3 output for the lab demo.
+# To analyze a real image: place memory.img in data/ and use 'make analyze IMAGE=data/memory.img'.
+services:
+  lab:
+    build: .
+    image: plaintext/memory-forensics:1.0
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

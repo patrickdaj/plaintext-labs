@@ -1,0 +1,35 @@
+title: AS-REP Roasting — Kerberos Pre-Authentication Disabled
+id: c9b6e7d2-4a3f-5b8c-0d7e-9f6a5b4c3d2e
+status: test
+description: |
+  Detects AS-REP roasting — AS-REQ sent for an account with DONT_REQUIRE_PREAUTH set.
+  Event 4768 with PreAuthType 0 means no pre-authentication was required, allowing
+  an unauthenticated attacker to request the AS-REP and crack the encrypted portion offline.
+  Requires: Audit Kerberos Authentication Service (Success, Failure) on DCs.
+author: Plaintext Security
+date: 2024-01-01
+references:
+  - https://attack.mitre.org/techniques/T1558/004/
+tags:
+  - attack.credential_access
+  - attack.t1558.004
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 4768
+    PreAuthType: '0'      # 0 = no pre-authentication required
+    Status: '0x0'         # Success — ticket was issued
+  filter_dc:
+    # Exclude DC-to-DC authentication (machine accounts)
+    TargetUserName|endswith: '$'
+  condition: selection and not filter_dc
+falsepositives:
+  - Legacy Kerberos implementations that genuinely do not support pre-authentication
+  - Misconfigured non-Windows Kerberos clients
+level: high
+audit_policy_required:
+  category: 'Account Logon'
+  subcategory: 'Audit Kerberos Authentication Service'
+  setting: 'Success and Failure'

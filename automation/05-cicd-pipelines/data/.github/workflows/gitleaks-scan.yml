@@ -1,0 +1,22 @@
+# Vulnerability 1: pull_request_target misuse
+# This workflow uses pull_request_target but checks out PR code and runs it,
+# allowing a malicious PR to access repository secrets.
+name: Secret Scan
+
+on:
+  pull_request_target:  # VULNERABLE: should be pull_request for PR code scanning
+    branches: [main]
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    # Missing: permissions block
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # Checks out untrusted PR code
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2  # Unpinned — version could change
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

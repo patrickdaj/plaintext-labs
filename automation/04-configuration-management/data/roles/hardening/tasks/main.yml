@@ -1,0 +1,28 @@
+---
+# TODO: Fill in the hardening tasks below.
+# Each task should be idempotent — use the correct module so it checks state before changing.
+
+# Task 1: Set PermitRootLogin no in sshd_config
+# Hint: ansible.builtin.lineinfile with regexp and line parameters
+# - name: Disable root SSH login
+#   ansible.builtin.lineinfile:
+#     path: /etc/ssh/sshd_config
+#     regexp: '^#?PermitRootLogin'
+#     line: 'PermitRootLogin no'
+#     backup: yes
+#   notify: Restart sshd
+
+# Task 2: Disable password authentication
+# (same module, different key)
+
+# Task 3: Disable IP forwarding (sysctl)
+# Hint: ansible.posix.sysctl with name, value, sysctl_set: true, state: present
+
+# Task 4: Enable SYN cookie protection (sysctl)
+
+# Task 5: Remove telnet package
+# Hint: ansible.builtin.package with state: absent
+
+- name: Placeholder — remove this and add the real tasks above
+  ansible.builtin.debug:
+    msg: "TODO: implement hardening tasks"

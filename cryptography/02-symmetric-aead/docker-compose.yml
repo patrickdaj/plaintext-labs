@@ -1,0 +1,10 @@
+# Module 02 — Symmetric & AEAD
+services:
+  lab:
+    build: .
+    image: plaintext/symmetric-aead:1.0
+    container_name: symmetric-aead-lab
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

@@ -1,0 +1,12 @@
+---
+# Tunable defaults for the hardening role.
+# Override these in host_vars or group_vars.
+
+# SSH port (default 22)
+sshd_port: 22
+
+# SYN cookie threshold
+tcp_syncookies: 1
+
+# IP forwarding (0 = disabled)
+ip_forward: 0

@@ -1,0 +1,10 @@
+# Module 08 — Secret Detection & Leakage
+services:
+  lab:
+    build: .
+    image: plaintext/secret-detection:1.0
+    container_name: secret-detection-lab
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

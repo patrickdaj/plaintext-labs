@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  lab:
+    build: .
+    container_name: antiforensics-lab
+    volumes:
+      - ./data:/data
+      - ./scripts:/scripts
+    working_dir: /lab
+    entrypoint: ["sleep", "infinity"]
+    privileged: true

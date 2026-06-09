@@ -1,0 +1,41 @@
+# Module 04 — Retrieval-Augmented Generation
+# Three containers: Ollama (generation), ChromaDB (vector store), lab (scripts).
+services:
+  ollama:
+    image: ollama/ollama:0.3.14
+    container_name: ai04-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=15m
+
+  chromadb:
+    image: chromadb/chroma:0.5.23
+    container_name: ai04-chroma
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+    environment:
+      - ANONYMIZED_TELEMETRY=false
+
+  lab:
+    image: python:3.12-slim
+    container_name: ai04-lab
+    depends_on:
+      - ollama
+      - chromadb
+    volumes:
+      - ./:/lab
+    working_dir: /lab
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - CHROMA_HOST=http://chromadb:8000
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-tinyllama}
+    command: sleep infinity
+
+volumes:
+  ollama-data:
+  chroma-data:

@@ -1,0 +1,26 @@
+title: DCSync — FILL IN THE BLANKS
+id: YOUR-UUID-HERE
+status: test
+description: |
+  YOUR DESCRIPTION — explain what DCSync is and what event you're detecting.
+author: Your Name
+date: 2024-01-01
+references:
+  - https://attack.mitre.org/techniques/T1003/006/
+tags:
+  - attack.credential_access
+  - attack.t1003.006    # Correct tag — confirm this sub-technique
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: ???         # Fill in: which event ID records directory service access?
+    Properties|contains:
+      - '???'            # Fill in: the GUID for DS-Replication-Get-Changes-All
+  filter_dc_accounts:
+    SubjectUserName|endswith: '???'  # Fill in: how do you identify DC machine accounts?
+  condition: selection and not filter_dc_accounts
+falsepositives:
+  - YOUR FALSE POSITIVE ANALYSIS
+level: critical

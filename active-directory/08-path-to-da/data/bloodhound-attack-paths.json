@@ -1,0 +1,259 @@
+{
+  "meta": {
+    "description": "Meridian Financial — complete attack path dataset from jsmith to Domain Admins. Use with BloodHound CE or path-analyzer.py.",
+    "domain": "MERIDIAN.LOCAL",
+    "generated": "2024-01-01",
+    "total_paths": 3
+  },
+  "paths": [
+    {
+      "id": "PATH-001",
+      "name": "Primary path: Kerberoast → ACL abuse → DA",
+      "length": 5,
+      "feasibility": "HIGH",
+      "stealth": "MEDIUM",
+      "hops": [
+        {
+          "step": 1,
+          "from": {"type": "User", "name": "JSMITH@MERIDIAN.LOCAL"},
+          "to": {"type": "User", "name": "SVC-MSSQL@MERIDIAN.LOCAL"},
+          "edge": "Kerberoast",
+          "attck_technique": "T1558.003",
+          "attck_name": "Kerberoasting",
+          "credential_before": "jsmith:Welcome1!",
+          "credential_after": "svc-mssql NT hash (cracked from TGS)",
+          "action": "Request TGS for MSSQLSvc/db01.meridian.local:1433 as jsmith; crack RC4 hash offline with hashcat and rockyou.txt (password: Sql2019)",
+          "tool": "GetUserSPNs.py, hashcat -m 13100",
+          "events_generated": ["4769 (TGS-REQ with etype 23) on dc01"],
+          "events_absent": ["No failed logon", "No lockout"],
+          "detection_difficulty": "MEDIUM — requires logging 4769 and alerting on RC4 etype for service accounts"
+        },
+        {
+          "step": 2,
+          "from": {"type": "User", "name": "SVC-MSSQL@MERIDIAN.LOCAL"},
+          "to": {"type": "User", "name": "SVC-DEPLOY@MERIDIAN.LOCAL"},
+          "edge": "CredentialReuse",
+          "attck_technique": "T1078.002",
+          "attck_name": "Valid Accounts — Domain Accounts",
+          "credential_before": "svc-mssql:Sql2019",
+          "credential_after": "svc-deploy:D3pl0y$3rv1ce! (password spray / reuse pattern)",
+          "action": "Password spray remaining service accounts with the cracked password pattern (year-based suffix). svc-deploy reuses a similar password.",
+          "tool": "nxc smb, kerbrute",
+          "events_generated": ["4625 (failed logons) during spray", "4624 (successful logon) for svc-deploy"],
+          "events_absent": [],
+          "detection_difficulty": "LOW — password spray generates 4625 events; alertable if threshold is set"
+        },
+        {
+          "step": 3,
+          "from": {"type": "User", "name": "SVC-DEPLOY@MERIDIAN.LOCAL"},
+          "to": {"type": "Group", "name": "IT-ADMINS@MERIDIAN.LOCAL"},
+          "edge": "GenericWrite",
+          "attck_technique": "T1484.001",
+          "attck_name": "Domain Policy Modification — Group Policy Modification",
+          "credential_before": "svc-deploy credential",
+          "credential_after": "jsmith now member of IT-Admins",
+          "action": "Use svc-deploy's GenericWrite on IT-Admins to add jsmith as a member via LDAP modify operation",
+          "tool": "ldapmodify or dacledit.py",
+          "events_generated": ["4728 (member added to security-enabled global group) on dc01"],
+          "events_absent": [],
+          "detection_difficulty": "LOW — 4728 is detectable; alert on group membership changes for privileged groups"
+        },
+        {
+          "step": 4,
+          "from": {"type": "Group", "name": "IT-ADMINS@MERIDIAN.LOCAL"},
+          "to": {"type": "Computer", "name": "DC01.MERIDIAN.LOCAL"},
+          "edge": "AdminTo",
+          "attck_technique": "T1021.002",
+          "attck_name": "Remote Services — SMB/Windows Admin Shares",
+          "credential_before": "jsmith (now in IT-Admins) NT hash",
+          "credential_after": "SYSTEM on dc01",
+          "action": "Pass-the-hash to dc01 using jsmith's NT hash; IT-Admins has local admin rights on DC",
+          "tool": "psexec.py -hashes :NT_HASH MERIDIAN.LOCAL/jsmith@dc01.meridian.local",
+          "events_generated": ["4624 Logon Type 3 (network logon) on dc01", "7045 (new service installed) on dc01"],
+          "events_absent": [],
+          "detection_difficulty": "LOW — 7045 + 4624 Type 3 from unusual source is a strong signal"
+        },
+        {
+          "step": 5,
+          "from": {"type": "Computer", "name": "DC01.MERIDIAN.LOCAL"},
+          "to": {"type": "Group", "name": "DOMAIN ADMINS@MERIDIAN.LOCAL"},
+          "edge": "DCSync",
+          "attck_technique": "T1003.006",
+          "attck_name": "OS Credential Dumping — DCSync",
+          "credential_before": "SYSTEM on dc01",
+          "credential_after": "All domain NT hashes including krbtgt and Administrator",
+          "action": "Run secretsdump.py from SYSTEM context on dc01; extract all credential material including krbtgt hash for golden ticket persistence",
+          "tool": "secretsdump.py -just-dc-ntlm dc01.meridian.local",
+          "events_generated": ["4662 (DS-Replication-Get-Changes) on dc01"],
+          "events_absent": [],
+          "detection_difficulty": "MEDIUM — 4662 detectable if audit policy is set; many environments don't audit this"
+        }
+      ]
+    },
+    {
+      "id": "PATH-002",
+      "name": "Alternate path: AS-REP roast + helpdesk pivot",
+      "length": 4,
+      "feasibility": "HIGH",
+      "stealth": "HIGH",
+      "hops": [
+        {
+          "step": 1,
+          "from": {"type": "User", "name": "UNAUTHENTICATED"},
+          "to": {"type": "User", "name": "SVC-LEGACY@MERIDIAN.LOCAL"},
+          "edge": "ASREPRoast",
+          "attck_technique": "T1558.004",
+          "attck_name": "AS-REP Roasting",
+          "credential_before": "None (no domain credential required)",
+          "credential_after": "svc-legacy NT hash (cracked from AS-REP)",
+          "action": "Request AS-REP for svc-legacy without any credential; crack the encrypted portion offline",
+          "tool": "GetNPUsers.py, hashcat -m 18200",
+          "events_generated": ["4768 (AS-REQ) — looks like a normal logon attempt"],
+          "events_absent": ["No failed logon (request succeeds)"],
+          "detection_difficulty": "HIGH — 4768 events are normal; detecting roasting requires anomaly analysis"
+        },
+        {
+          "step": 2,
+          "from": {"type": "User", "name": "SVC-LEGACY@MERIDIAN.LOCAL"},
+          "to": {"type": "User", "name": "RRODRIGUEZ@MERIDIAN.LOCAL"},
+          "edge": "CredentialAccess",
+          "attck_technique": "T1078.002",
+          "attck_name": "Valid Accounts",
+          "credential_before": "svc-legacy credential",
+          "credential_after": "rrodriguez credential (helpdesk, password reset rights)",
+          "action": "svc-legacy can access legacy application; application stores helpdesk credentials in config file",
+          "tool": "Application credential extraction",
+          "events_generated": [],
+          "events_absent": [],
+          "detection_difficulty": "HIGH — application credential access not typically audited"
+        },
+        {
+          "step": 3,
+          "from": {"type": "User", "name": "RRODRIGUEZ@MERIDIAN.LOCAL"},
+          "to": {"type": "User", "name": "CLEE@MERIDIAN.LOCAL"},
+          "edge": "ForceChangePassword",
+          "attck_technique": "T1098.001",
+          "attck_name": "Account Manipulation — Additional Cloud Credentials",
+          "credential_before": "rrodriguez (Helpdesk-Staff) credential",
+          "credential_after": "clee credential (Payroll-Access)",
+          "action": "rrodriguez has delegated password reset rights on Finance OU; reset clee's password to attacker-controlled value",
+          "tool": "samba-tool user setpassword / Set-ADAccountPassword",
+          "events_generated": ["4723 (password change attempt)", "4724 (password reset by admin)"],
+          "events_absent": [],
+          "detection_difficulty": "LOW — 4724 is auditable; alert on helpdesk accounts resetting Finance passwords"
+        },
+        {
+          "step": 4,
+          "from": {"type": "User", "name": "CLEE@MERIDIAN.LOCAL"},
+          "to": {"type": "Group", "name": "PAYROLL-ACCESS@MERIDIAN.LOCAL"},
+          "edge": "MemberOf",
+          "attck_technique": "T1078.002",
+          "attck_name": "Valid Accounts",
+          "credential_before": "clee credential (reset by attacker)",
+          "credential_after": "Access to payroll application and financial data",
+          "action": "Authenticate as clee to payroll application; exfiltrate financial data",
+          "tool": "Browser / application client",
+          "events_generated": ["4624 Logon Type 3 to payroll server"],
+          "events_absent": [],
+          "detection_difficulty": "HIGH — normal user authenticating to their application; behavioral baseline needed"
+        }
+      ]
+    },
+    {
+      "id": "PATH-003",
+      "name": "Short path: unconstrained delegation TGT theft",
+      "length": 3,
+      "feasibility": "MEDIUM",
+      "stealth": "MEDIUM",
+      "hops": [
+        {
+          "step": 1,
+          "from": {"type": "User", "name": "JSMITH@MERIDIAN.LOCAL"},
+          "to": {"type": "Computer", "name": "BACKUP01.MERIDIAN.LOCAL"},
+          "edge": "CanAuthenticate",
+          "attck_technique": "T1558.003",
+          "attck_name": "Kerberoasting (svc-backup)",
+          "credential_before": "jsmith:Welcome1!",
+          "credential_after": "svc-backup credential + shell on backup01",
+          "action": "Kerberoast svc-backup; crack hash; use credential to access backup server",
+          "tool": "GetUserSPNs.py, psexec.py",
+          "events_generated": ["4769 (TGS-REQ) on dc01"],
+          "events_absent": [],
+          "detection_difficulty": "MEDIUM"
+        },
+        {
+          "step": 2,
+          "from": {"type": "Computer", "name": "BACKUP01.MERIDIAN.LOCAL"},
+          "to": {"type": "User", "name": "DC01$@MERIDIAN.LOCAL"},
+          "edge": "UnconstrainedDelegation",
+          "attck_technique": "T1558.001",
+          "attck_name": "Steal or Forge Kerberos Tickets — Golden Ticket",
+          "credential_before": "Shell on backup01 (svc-backup has unconstrained delegation)",
+          "credential_after": "DC01$ TGT (coerced authentication)",
+          "action": "Coerce DC machine account to authenticate to backup01 (printer spooler or petitpotam); capture DC01$ TGT from LSASS on backup01",
+          "tool": "Rubeus / mimikatz (monitor for TGTs); MS-RPRN / petitpotam (coerce auth)",
+          "events_generated": ["4624 Logon Type 3 on backup01 (DC$ authenticating)"],
+          "events_absent": [],
+          "detection_difficulty": "MEDIUM — unusual DC machine account authentication to non-DC host"
+        },
+        {
+          "step": 3,
+          "from": {"type": "User", "name": "DC01$@MERIDIAN.LOCAL"},
+          "to": {"type": "Group", "name": "DOMAIN ADMINS@MERIDIAN.LOCAL"},
+          "edge": "DCSync",
+          "attck_technique": "T1003.006",
+          "attck_name": "DCSync using DC machine account TGT",
+          "credential_before": "DC01$ TGT",
+          "credential_after": "All domain credential hashes",
+          "action": "Use DC01$ TGT (a DC machine account) to DCSync the entire domain credential store",
+          "tool": "secretsdump.py -k",
+          "events_generated": ["4662 on dc01"],
+          "events_absent": [],
+          "detection_difficulty": "MEDIUM"
+        }
+      ]
+    }
+  ],
+  "mitigations": [
+    {
+      "id": "M-001",
+      "control": "Rotate svc-mssql, svc-backup, svc-web passwords to 25+ char random",
+      "paths_broken": ["PATH-001 step 1"],
+      "effort": "LOW",
+      "impact": "Eliminates Kerberoasting as a stepping stone",
+      "recommended_action": "Migrate to gMSA (Group Managed Service Accounts) for automatic 120-char rotation"
+    },
+    {
+      "id": "M-002",
+      "control": "Remove GenericWrite ACE on IT-Admins for svc-deploy",
+      "paths_broken": ["PATH-001 step 3"],
+      "effort": "LOW",
+      "impact": "Breaks the primary path; secondary paths still exist",
+      "recommended_action": "Audit all ACEs on privileged groups; remove non-default write permissions"
+    },
+    {
+      "id": "M-003",
+      "control": "Remove DONT_REQUIRE_PREAUTH from svc-legacy and svc-monitor",
+      "paths_broken": ["PATH-002 step 1"],
+      "effort": "LOW",
+      "impact": "Eliminates unauthenticated AS-REP roasting",
+      "recommended_action": "Set userAccountControl to remove 4194304 flag; verify application compatibility"
+    },
+    {
+      "id": "M-004",
+      "control": "Convert svc-backup to constrained delegation (or gMSA)",
+      "paths_broken": ["PATH-003 steps 2-3"],
+      "effort": "MEDIUM",
+      "impact": "Eliminates unconstrained delegation TGT theft vector",
+      "recommended_action": "Configure constrained delegation to BackupSvc/backup01.meridian.local only"
+    },
+    {
+      "id": "M-005",
+      "control": "Require SMB signing on all workstations and servers",
+      "paths_broken": ["PATH-001 step 4 (relay variant)"],
+      "effort": "LOW",
+      "impact": "Eliminates NTLM relay; does not prevent PTH directly",
+      "recommended_action": "GPO: Microsoft network server: Digitally sign communications (always) = Enabled"
+    }
+  ]
+}

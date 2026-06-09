@@ -1,0 +1,25 @@
+title: Whoami Recon Activity
+id: c3d4e5f6-a7b8-9012-cdef-123456789012
+status: test
+description: Detects execution of whoami with common recon flags used by attackers after initial access.
+references:
+  - https://attack.mitre.org/techniques/T1033/
+author: Meridian Detection Engineering
+date: 2024-11-15
+tags:
+  - attack.discovery
+  - attack.t1033
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\whoami.exe'
+    CommandLine|contains:
+      - '/all'
+      - '/priv'
+      - '/groups'
+  condition: selection
+falsepositives:
+  - IT administration scripts that check current user context
+level: medium

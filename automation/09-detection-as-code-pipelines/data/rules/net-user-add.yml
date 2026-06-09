@@ -1,0 +1,25 @@
+title: Local User Account Added via Net User
+id: d4e5f6a7-b8c9-0123-defa-234567890123
+status: test
+description: Detects creation of a new local user account via the net user /add command, a common persistence technique.
+references:
+  - https://attack.mitre.org/techniques/T1136/001/
+author: Meridian Detection Engineering
+date: 2024-11-15
+tags:
+  - attack.persistence
+  - attack.t1136.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\net.exe'
+    CommandLine|contains|all:
+      - ' user '
+      - ' /add'
+  condition: selection
+falsepositives:
+  - Legitimate IT provisioning scripts
+  - Domain join scripts
+level: medium

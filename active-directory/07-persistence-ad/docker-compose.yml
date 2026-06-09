@@ -1,0 +1,45 @@
+services:
+  samba-dc:
+    build:
+      context: ../02-enumeration
+      dockerfile: Dockerfile.dc
+    image: plaintext/meridian-dc:latest
+    container_name: meridian-dc
+    hostname: dc01
+    domainname: meridian.local
+    environment:
+      SAMBA_DOMAIN: MERIDIAN
+      SAMBA_REALM: MERIDIAN.LOCAL
+      SAMBA_ADMIN_PASSWORD: "M3rid1an@Admin!"
+    networks:
+      ad-net:
+        ipv4_address: 10.10.0.10
+    volumes:
+      - ../02-enumeration/data:/data:ro
+    healthcheck:
+      test: ["CMD", "samba-tool", "domain", "info", "dc01.meridian.local"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  attacker:
+    build:
+      context: ../04-credential-theft
+    image: plaintext/credential-attacker:latest
+    container_name: persistence-attacker
+    depends_on:
+      samba-dc:
+        condition: service_healthy
+    networks:
+      ad-net:
+        ipv4_address: 10.10.0.20
+    dns:
+      - 10.10.0.10
+    command: sleep infinity
+
+networks:
+  ad-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24

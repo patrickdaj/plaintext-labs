@@ -1,0 +1,8 @@
+services:
+  lab:
+    build: .
+    image: plaintext/ad-detection:latest
+    working_dir: /lab
+    volumes:
+      - ./data:/lab/data
+    command: sleep infinity

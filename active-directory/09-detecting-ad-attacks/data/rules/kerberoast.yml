@@ -1,0 +1,41 @@
+title: Kerberoasting — RC4 Service Ticket Request
+id: b8a5d8c1-3f2e-4a7b-9c6d-8e5f4a3b2c1d
+status: test
+description: |
+  Detects Kerberoasting — a TGS-REQ for a service account using RC4 encryption (etype 23).
+  Legitimate service ticket requests from modern clients use AES (etype 17/18). An RC4 request
+  for a service account from a user workstation is a strong indicator of Kerberoasting.
+  Requires: Audit Kerberos Service Ticket Operations (Success) on DCs.
+author: Plaintext Security
+date: 2024-01-01
+references:
+  - https://attack.mitre.org/techniques/T1558/003/
+  - https://adsecurity.org/?p=2293
+tags:
+  - attack.credential_access
+  - attack.t1558.003
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 4769
+    TicketEncryptionType: '0x17'   # RC4-HMAC
+    ServiceName|endswith:
+      - '$'    # Exclude: machine accounts (these are normal)
+  filter_machine_accounts:
+    # ServiceName ending in $ is a machine account ticket — normal
+    # We want user-named service accounts only
+    ServiceName|endswith: '$'
+  filter_local:
+    IpAddress: '::1'
+  condition: selection and not filter_machine_accounts and not filter_local
+falsepositives:
+  - Legacy applications that require RC4 encryption (should be rare in modern environments)
+  - Misconfigured clients with AES disabled
+level: high
+audit_policy_required:
+  category: 'Account Logon'
+  subcategory: 'Audit Kerberos Service Ticket Operations'
+  setting: 'Success'
+  note: 'Without this audit setting enabled on DCs, Event 4769 is never generated.'

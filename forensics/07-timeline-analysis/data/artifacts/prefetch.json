@@ -1,0 +1,21 @@
+{
+  "type": "prefetch",
+  "filename": "SVCUPD.EXE-ABCD1234.pf",
+  "executable": "SVCUPD.EXE",
+  "path": "C:\\ProgramData\\Microsoft\\WindowsDefender\\Update\\svcupd.exe",
+  "run_count": 3,
+  "last_run": "2024-03-15T02:11:08Z",
+  "run_times": [
+    "2024-03-15T02:11:08Z",
+    "2024-03-15T02:20:00Z",
+    "2024-03-15T02:30:55Z"
+  ],
+  "volumes": [
+    "C:\\"
+  ],
+  "files_referenced": [
+    "C:\\Windows\\System32\\ntdll.dll",
+    "C:\\Windows\\System32\\kernel32.dll",
+    "C:\\ProgramData\\Microsoft\\WindowsDefender\\Update\\svcupd.exe"
+  ]
+}

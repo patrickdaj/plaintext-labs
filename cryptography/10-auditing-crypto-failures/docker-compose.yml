@@ -1,0 +1,54 @@
+# Module 10 — Auditing Applied-Crypto Failures
+# Three nginx instances with different TLS configurations + testssl.sh scanner
+services:
+  nginx-legacy:
+    image: nginx:1.27.0-alpine
+    container_name: tls-legacy
+    volumes:
+      - ./data/nginx-legacy.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./data/gen-certs.sh:/docker-entrypoint.d/99-gen-certs.sh:ro
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  nginx-modern:
+    image: nginx:1.27.0-alpine
+    container_name: tls-modern
+    volumes:
+      - ./data/nginx-modern.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./data/gen-certs.sh:/docker-entrypoint.d/99-gen-certs.sh:ro
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  nginx-strong:
+    image: nginx:1.27.0-alpine
+    container_name: tls-strong
+    volumes:
+      - ./data/nginx-strong.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./data/gen-certs.sh:/docker-entrypoint.d/99-gen-certs.sh:ro
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  lab:
+    build: .
+    image: plaintext/crypto-audit:1.0
+    container_name: crypto-audit-lab
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    depends_on:
+      nginx-legacy:
+        condition: service_healthy
+      nginx-modern:
+        condition: service_healthy
+      nginx-strong:
+        condition: service_healthy
+    command: sleep infinity

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "INC-2025-0042",
+    "title": "Possible lateral movement from MERIDIAN-WKS-023",
+    "severity": "HIGH",
+    "status": "open",
+    "created": "2025-05-20T13:30:00Z",
+    "assigned_to": "soc-team",
+    "description": "Following ALT-2025-0002 (encoded PowerShell) and ALT-2025-0004 (PsExec installation), possible lateral movement campaign from MERIDIAN-WKS-023. Investigation in progress.",
+    "related_alerts": ["ALT-2025-0002", "ALT-2025-0004"],
+    "mitre_techniques": ["T1059.001", "T1021.002"]
+  },
+  {
+    "id": "INC-2025-0043",
+    "title": "Suspected account compromise — bchen@meridian.fin",
+    "severity": "HIGH",
+    "status": "open",
+    "created": "2025-05-21T02:20:00Z",
+    "assigned_to": "soc-team",
+    "description": "Impossible travel alert for bchen@meridian.fin. Account sessions revoked pending investigation. User contacted; claims to be in London only.",
+    "related_alerts": ["ALT-2025-0006"],
+    "mitre_techniques": ["T1078", "T1539"]
+  },
+  {
+    "id": "INC-2025-0039",
+    "title": "DLP: bulk email to external domain",
+    "severity": "MEDIUM",
+    "status": "closed",
+    "created": "2025-05-15T09:00:00Z",
+    "assigned_to": "soc-analyst-2",
+    "description": "DLP alert for 47-recipient bulk email from finance team. Confirmed as legitimate mailing list distribution for quarterly report. Closed as false positive.",
+    "related_alerts": [],
+    "mitre_techniques": []
+  },
+  {
+    "id": "INC-2024-0612",
+    "title": "Credential phishing — finance team (2024-Q2)",
+    "severity": "HIGH",
+    "status": "closed",
+    "created": "2024-06-12T09:19:00Z",
+    "assigned_to": "ir-team",
+    "description": "Three finance accounts compromised via credential phishing. Contained in 4 hours. See post-incident report in knowledge base.",
+    "related_alerts": [],
+    "mitre_techniques": ["T1566.002", "T1078"]
+  }
+]

@@ -1,0 +1,197 @@
+{
+  "name": "AI Alert Playbook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alert",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Alert Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "meridian-alert"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ollama:11434/api/generate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "tinyllama"
+            },
+            {
+              "name": "stream",
+              "value": false
+            },
+            {
+              "name": "prompt",
+              "value": "=You are a SOC analyst. Classify this security alert. Return ONLY valid JSON with no markdown:\n{\"severity\": \"CRITICAL|HIGH|MEDIUM|LOW\", \"confidence\": \"HIGH|MEDIUM|LOW\", \"action\": \"one-sentence recommended action\"}\n\nWhen uncertain between severities, choose the HIGHER one. CRITICAL: active attack. HIGH: likely malicious. MEDIUM: suspicious. LOW: benign.\n\nALERT: {{ $json.body.title }}. {{ $json.body.description }}\nHOST: {{ $json.body.host }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "ollama-classify",
+      "name": "AI Classify Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the Ollama response and extract severity\nconst raw = $input.item.json.response || '';\nlet parsed = {};\ntry {\n  // Strip code fences if present\n  const clean = raw.replace(/```json?/g, '').replace(/```/g, '').trim();\n  parsed = JSON.parse(clean);\n} catch (e) {\n  // Parse failed — default to HIGH for safe failure\n  parsed = {\n    severity: 'HIGH',\n    confidence: 'LOW',\n    action: 'MANUAL REVIEW — AI output could not be parsed.',\n    parse_error: e.message,\n    raw_output: raw\n  };\n}\n\n// Pass through the original alert data too\nreturn {\n  json: {\n    alert: $('Alert Webhook').item.json.body,\n    classification: parsed,\n    ai_raw: raw\n  }\n};"
+      },
+      "id": "parse-classification",
+      "name": "Parse Classification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "crit-check",
+              "leftValue": "={{ $json.classification.severity }}",
+              "rightValue": "CRITICAL",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-critical",
+      "name": "Is CRITICAL?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1000, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {},
+          "conditions": [
+            {
+              "id": "high-check",
+              "leftValue": "={{ $json.classification.severity }}",
+              "rightValue": "HIGH",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "route-high",
+      "name": "Is HIGH?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1000, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// AUTO-ESCALATE: CRITICAL alerts — no approval needed\nconst alert = $json.alert;\nconst classification = $json.classification;\nconst logEntry = {\n  timestamp: new Date().toISOString(),\n  alert_id: alert.id || 'unknown',\n  host: alert.host,\n  title: alert.title,\n  severity: classification.severity,\n  confidence: classification.confidence,\n  action_taken: 'AUTO_ESCALATED',\n  ai_action: classification.action,\n  approver: null,\n  notes: 'CRITICAL alert auto-escalated without human approval per policy.'\n};\nconsole.log('AUDIT:', JSON.stringify(logEntry));\nreturn { json: logEntry };"
+      },
+      "id": "auto-escalate",
+      "name": "Auto Escalate (CRITICAL)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// APPROVAL REQUIRED: HIGH alerts\nconst alert = $json.alert;\nconst classification = $json.classification;\nconst logEntry = {\n  timestamp: new Date().toISOString(),\n  alert_id: alert.id || 'unknown',\n  host: alert.host,\n  title: alert.title,\n  severity: classification.severity,\n  confidence: classification.confidence,\n  action_taken: 'PENDING_APPROVAL',\n  ai_action: classification.action,\n  approver: null,\n  notes: 'HIGH alert queued for human approval before containment.'\n};\nconsole.log('AUDIT:', JSON.stringify(logEntry));\nconsole.log('APPROVAL REQUIRED: Reply APPROVE or DENY to proceed.');\nreturn { json: logEntry };"
+      },
+      "id": "approval-gate",
+      "name": "Approval Gate (HIGH)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 450]
+    },
+    {
+      "parameters": {
+        "jsCode": "// STANDARD QUEUE: MEDIUM/LOW alerts\nconst alert = $json.alert;\nconst classification = $json.classification;\nconst logEntry = {\n  timestamp: new Date().toISOString(),\n  alert_id: alert.id || 'unknown',\n  host: alert.host,\n  title: alert.title,\n  severity: classification.severity,\n  confidence: classification.confidence,\n  action_taken: 'QUEUED',\n  ai_action: classification.action,\n  approver: null,\n  notes: 'Routed to standard analyst queue.'\n};\nconsole.log('AUDIT:', JSON.stringify(logEntry));\nreturn { json: logEntry };"
+      },
+      "id": "standard-queue",
+      "name": "Standard Queue (MEDIUM/LOW)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 650]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1500, 400]
+    }
+  ],
+  "connections": {
+    "Alert Webhook": {
+      "main": [
+        [{"node": "AI Classify Alert", "type": "main", "index": 0}]
+      ]
+    },
+    "AI Classify Alert": {
+      "main": [
+        [{"node": "Parse Classification", "type": "main", "index": 0}]
+      ]
+    },
+    "Parse Classification": {
+      "main": [
+        [{"node": "Is CRITICAL?", "type": "main", "index": 0}]
+      ]
+    },
+    "Is CRITICAL?": {
+      "main": [
+        [{"node": "Auto Escalate (CRITICAL)", "type": "main", "index": 0}],
+        [{"node": "Is HIGH?", "type": "main", "index": 0}]
+      ]
+    },
+    "Is HIGH?": {
+      "main": [
+        [{"node": "Approval Gate (HIGH)", "type": "main", "index": 0}],
+        [{"node": "Standard Queue (MEDIUM/LOW)", "type": "main", "index": 0}]
+      ]
+    },
+    "Auto Escalate (CRITICAL)": {
+      "main": [[{"node": "Webhook Response", "type": "main", "index": 0}]]
+    },
+    "Approval Gate (HIGH)": {
+      "main": [[{"node": "Webhook Response", "type": "main", "index": 0}]]
+    },
+    "Standard Queue (MEDIUM/LOW)": {
+      "main": [[{"node": "Webhook Response", "type": "main", "index": 0}]]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1"
+}

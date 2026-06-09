@@ -1,0 +1,27 @@
+# Module 03 — Prompt Patterns for Security
+services:
+  ollama:
+    image: ollama/ollama:0.3.14
+    container_name: ai03-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=10m
+
+  lab:
+    image: python:3.12-slim
+    container_name: ai03-lab
+    depends_on:
+      - ollama
+    volumes:
+      - ./:/lab
+    working_dir: /lab
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-tinyllama}
+    command: sleep infinity
+
+volumes:
+  ollama-data:

@@ -1,0 +1,10 @@
+# Module 03 — File Systems & Carving lab environment.
+# SleuthKit + foremost container; disk.img is committed in data/ (2MB FAT32).
+services:
+  lab:
+    build: .
+    image: plaintext/file-systems-carving:1.0
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

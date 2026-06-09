@@ -1,0 +1,12 @@
+# Module 03 — Linux Hardening to CIS
+# Ubuntu 22.04 container with Lynis and OpenSCAP
+services:
+  lab:
+    build: .
+    image: plaintext/linux-hardening:1.0
+    container_name: linux-hardening-lab
+    privileged: true
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

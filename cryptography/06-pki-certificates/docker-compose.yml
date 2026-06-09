@@ -1,0 +1,10 @@
+# Module 06 — PKI & Certificate Management
+services:
+  lab:
+    build: .
+    image: plaintext/pki-certificates:1.0
+    container_name: pki-lab
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

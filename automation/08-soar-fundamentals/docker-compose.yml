@@ -1,0 +1,60 @@
+services:
+  threat-api:
+    image: python:3.12.9-slim
+    command: >
+      sh -c "pip install -q flask && python -c \"
+      import random
+      from flask import Flask, jsonify
+      app = Flask(__name__)
+      @app.route('/api/v3/ip/<ip>')
+      def enrich(ip):
+          verdicts = {'185.220.101.1': 'malicious', '8.8.8.8': 'clean', '1.2.3.4': 'unknown'}
+          v = verdicts.get(ip, random.choice(['clean','suspicious']))
+          return jsonify({'ioc': ip, 'verdict': v, 'abuse_score': 90 if v == 'malicious' else 5})
+      app.run(host='0.0.0.0', port=8080)
+      \""
+    ports:
+      - "8080:8080"
+
+  ticket-backend:
+    image: python:3.12.9-slim
+    command: >
+      sh -c "pip install -q flask && python -c \"
+      import json, uuid, os
+      from flask import Flask, request, jsonify
+      from pathlib import Path
+      app = Flask(__name__)
+      Path('/data/tickets').mkdir(parents=True, exist_ok=True)
+      @app.route('/ticket', methods=['POST'])
+      def create_ticket():
+          ticket = request.json
+          ticket['ticket_id'] = str(uuid.uuid4())[:8]
+          tid = ticket['ticket_id']
+          Path(f'/data/tickets/{tid}.json').write_text(json.dumps(ticket, indent=2))
+          print(f'[TICKET] Created {tid}', flush=True)
+          return jsonify({'ticket_id': tid, 'status': 'created'})
+      app.run(host='0.0.0.0', port=8081)
+      \""
+    volumes:
+      - ./data/tickets:/data/tickets
+    ports:
+      - "8081:8081"
+
+  n8n:
+    image: n8nio/n8n:1.83.2
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_LOG_LEVEL=warn
+      - WEBHOOK_URL=http://localhost:5678/
+      - N8N_RUNNERS_ENABLED=true
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./data:/data
+    depends_on:
+      - threat-api
+      - ticket-backend
+
+volumes:
+  n8n_data:

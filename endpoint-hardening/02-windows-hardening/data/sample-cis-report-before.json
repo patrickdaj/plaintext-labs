@@ -1,0 +1,24 @@
+{
+  "benchmark": "CIS Microsoft Windows 11 Enterprise Benchmark",
+  "profile": "Level 1 (L1) - Corporate/Enterprise Environment",
+  "hostname": "MERIDIAN-WS-001",
+  "scan_date": "2026-06-01T09:00:00Z",
+  "score": 47,
+  "total_checks": 240,
+  "passed": 113,
+  "failed": 127,
+  "rules": [
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_1.1.4_L1_Ensure_Minimum_password_length_is_set_to_14_or_more_characters", "title": "Ensure 'Minimum password length' is set to '14 or more character(s)'", "result": "fail", "severity": "high"},
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_1.1.1_L1_Ensure_Enforce_password_history_is_set_to_24_or_more_passwords", "title": "Ensure 'Enforce password history' is set to '24 or more password(s)'", "result": "fail", "severity": "medium"},
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_1.2.2_L1_Ensure_Account_lockout_threshold_is_set_to_5_or_fewer_invalid_logon_attempts", "title": "Ensure 'Account lockout threshold' is set to '5 or fewer invalid logon attempt(s)'", "result": "fail", "severity": "high"},
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_1.2.1_L1_Ensure_Account_lockout_duration_is_set_to_15_or_more_minutes", "title": "Ensure 'Account lockout duration' is set to '15 or more minute(s)'", "result": "fail", "severity": "medium"},
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_2.3.7.1_L1_Ensure_Interactive_logon_Do_not_display_last_user_name_is_set_to_Enabled", "title": "Ensure 'Interactive logon: Do not display last user name' is set to 'Enabled'", "result": "fail", "severity": "low"},
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_2.3.7.4_L1_Ensure_Interactive_logon_Machine_inactivity_limit_is_set_to_900_or_fewer_seconds", "title": "Ensure 'Interactive logon: Machine inactivity limit' is set to '900 or fewer second(s)'", "result": "pass", "severity": "medium"},
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_2.3.10.6_L1_Ensure_Network_security_Do_not_store_LAN_Manager_hash_value_on_next_password_change_is_set_to_Enabled", "title": "Ensure 'Network security: Do not store LAN Manager hash value on next password change' is set to 'Enabled'", "result": "fail", "severity": "high"},
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_2.3.11.5_L1_Ensure_Network_security_LAN_Manager_authentication_level_is_set_to_Send_NTLMv2_response_only_Refuse_LM_NTLM", "title": "Ensure 'Network security: LAN Manager authentication level' is set to 'Send NTLMv2 response only. Refuse LM & NTLM'", "result": "fail", "severity": "high"},
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_18.4.3_L1_Ensure_Configure_SMB_v1_server_is_set_to_Disabled", "title": "Ensure 'Configure SMB v1 server' is set to 'Disabled'", "result": "fail", "severity": "high"},
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_18.9.12.1_L1_Ensure_Turn_off_AutoPlay_is_set_to_Enabled_All_drives", "title": "Ensure 'Turn off AutoPlay' is set to 'Enabled: All Drives'", "result": "fail", "severity": "low"},
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_18.9.59.2_L1_Ensure_Turn_on_PowerShell_Script_Block_Logging_is_set_to_Enabled", "title": "Ensure 'Turn on PowerShell Script Block Logging' is set to 'Enabled'", "result": "fail", "severity": "medium"},
+    {"id": "xccdf_org.cisecurity.benchmarks_rule_9.1.1_L1_Ensure_Windows_Firewall_Domain_Firewall_state_is_set_to_On", "title": "Ensure 'Windows Firewall: Domain: Firewall state' is set to 'On'", "result": "pass", "severity": "high"}
+  ]
+}

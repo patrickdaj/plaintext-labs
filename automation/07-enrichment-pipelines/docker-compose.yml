@@ -1,0 +1,31 @@
+services:
+  threat-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: plaintext/mock-threat-api-pipeline:1.0
+
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile.collector
+    image: plaintext/pipeline-collector:1.0
+    volumes:
+      - shared:/data/shared
+    depends_on:
+      - threat-api
+
+  processor:
+    build:
+      context: .
+      dockerfile: Dockerfile.processor
+    image: plaintext/pipeline-processor:1.0
+    volumes:
+      - shared:/data/shared
+    environment:
+      - THREAT_API_URL=http://threat-api:8080
+    depends_on:
+      - threat-api
+
+volumes:
+  shared:

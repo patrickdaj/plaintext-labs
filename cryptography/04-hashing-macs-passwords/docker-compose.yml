@@ -1,0 +1,10 @@
+# Module 04 — Hashing, MACs & Passwords
+services:
+  lab:
+    build: .
+    image: plaintext/hashing-macs-passwords:1.0
+    container_name: hashing-lab
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

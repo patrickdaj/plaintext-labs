@@ -1,0 +1,12 @@
+# Module 05 — Endpoint Telemetry & EDR
+# Ubuntu 22.04 with osquery daemon running
+services:
+  lab:
+    build: .
+    image: plaintext/endpoint-telemetry:1.0
+    container_name: endpoint-telemetry-lab
+    privileged: true
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

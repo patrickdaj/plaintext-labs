@@ -1,0 +1,10 @@
+# Module 10 — Detecting Host Compromise
+services:
+  lab:
+    build: .
+    image: plaintext/host-compromise-detection:1.0
+    container_name: host-detection-lab
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

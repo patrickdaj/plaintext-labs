@@ -1,0 +1,34 @@
+title: Cron Persistence via Crontab Modification
+id: a3b4c5d6-e7f8-9012-bcde-f01234567890
+status: experimental
+description: >
+  Detects modification of user crontab files, a common persistence technique.
+  A crontab entry running a script from /tmp is a high-confidence indicator
+  of malicious persistence.
+author: Meridian Security Team
+date: 2026/06/01
+references:
+  - https://attack.mitre.org/techniques/T1053/003/
+tags:
+  - attack.persistence
+  - attack.t1053.003
+logsource:
+  product: linux
+  service: auditd
+detection:
+  selection:
+    type: SYSCALL
+    exe: '/usr/bin/crontab'
+    key: 'cron_modification'
+  filter_benign:
+    auid: '0'   # root modifying its own crontab is less suspicious
+  condition: selection and not filter_benign
+fields:
+  - uid
+  - auid
+  - exe
+  - key
+falsepositives:
+  - Legitimate user crontab edits for scheduled jobs
+  - Ansible/configuration management modifying crontabs
+level: high

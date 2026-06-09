@@ -1,0 +1,10 @@
+Meridian Financial — Payroll Batch Q3 2026
+Employee: John Smith
+Department: Finance
+Salary: $95,000.00
+Bonus: $12,000.00
+Total: $107,000.00
+Payment Date: 2026-06-15
+Account: ****4521
+Routing: ****0124
+Authorised by: CFO

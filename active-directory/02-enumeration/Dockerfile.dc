@@ -1,0 +1,24 @@
+FROM debian:bookworm-slim
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    samba \
+    samba-tool \
+    krb5-user \
+    winbind \
+    libpam-winbind \
+    libnss-winbind \
+    dnsutils \
+    iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Remove existing samba config (package ships a stub)
+RUN rm -f /etc/samba/smb.conf
+
+COPY data/setup.sh /setup.sh
+RUN chmod +x /setup.sh
+
+EXPOSE 389 636 88 445 139 135
+
+CMD ["/setup.sh"]

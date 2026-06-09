@@ -1,0 +1,10 @@
+# Module 03 — Asymmetric & Key Exchange
+services:
+  lab:
+    build: .
+    image: plaintext/asymmetric-key-exchange:1.0
+    container_name: asymmetric-lab
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

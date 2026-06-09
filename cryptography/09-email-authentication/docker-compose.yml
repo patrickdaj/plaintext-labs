@@ -1,0 +1,24 @@
+# Module 09 — Email Authentication
+# bind9 DNS server + lab container
+services:
+  dns:
+    build: .
+    image: plaintext/email-auth-dns:1.0
+    container_name: email-auth-dns
+    cap_add:
+      - NET_ADMIN
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: >
+      bash -c "named -f -u bind 2>/dev/null & sleep infinity"
+
+  lab:
+    image: plaintext/email-auth-dns:1.0
+    container_name: email-auth-lab
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    depends_on:
+      - dns
+    command: sleep infinity

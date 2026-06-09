@@ -1,0 +1,11 @@
+---
+# TODO: Add the Restart sshd handler here.
+# - name: Restart sshd
+#   ansible.builtin.service:
+#     name: sshd
+#     state: restarted
+
+- name: Placeholder handler
+  ansible.builtin.debug:
+    msg: "TODO: add Restart sshd handler"
+  listen: "Restart sshd"

@@ -1,0 +1,206 @@
+---
+# Meridian Financial — AD Hardening Playbook
+# Version: 1.0
+# Applies CIS-aligned remediations for the findings from the Track 06 red team engagement.
+#
+# Requirements:
+#   - Ansible >= 2.15
+#   - community.general collection
+#   - microsoft.ad collection (for real Windows DCs)
+#   - For Samba4 lab: tasks run in documentation/debug mode (--check or debug print)
+#
+# Usage:
+#   ansible-playbook -i inventory.yml ad-hardening.yml --check   # dry run
+#   ansible-playbook -i inventory.yml ad-hardening.yml           # apply
+#
+# The 'name:' field is the audit trail — each task describes the control it implements.
+
+- name: Meridian Financial — Active Directory Hardening
+  hosts: domain_controllers
+  gather_facts: false
+
+  vars:
+    domain: "MERIDIAN.LOCAL"
+    domain_dn: "DC=meridian,DC=local"
+    dc_host: "dc01.meridian.local"
+    high_privilege_groups:
+      - "Domain Admins"
+      - "Enterprise Admins"
+      - "Schema Admins"
+      - "Backup Operators"
+      - "Account Operators"
+      - "Print Operators"
+      - "Server Operators"
+
+  tasks:
+
+    # -------------------------------------------------------------------------
+    # SECTION 1: Account & Credential Hygiene
+    # -------------------------------------------------------------------------
+
+    - name: "1.1 — Remove DONT_REQUIRE_PREAUTH from svc-legacy (eliminates AS-REP roasting)"
+      # Real task (Windows DC with microsoft.ad collection):
+      # microsoft.ad.user:
+      #   name: svc-legacy
+      #   domain: "{{ domain }}"
+      #   attributes:
+      #     set:
+      #       userAccountControl: 512  # Normal account, pre-auth required
+      # Lab equivalent (Samba4 via samba-tool):
+      ansible.builtin.debug:
+        msg: |
+          REMEDIATION: Remove DONT_REQUIRE_PREAUTH from svc-legacy
+          Command: samba-tool user setattribute svc-legacy userAccountControl 512
+          Risk removed: AS-REP roasting (T1558.004)
+          Paths broken: PATH-002 step 1
+
+    - name: "1.2 — Remove DONT_REQUIRE_PREAUTH from svc-monitor (eliminates AS-REP roasting)"
+      ansible.builtin.debug:
+        msg: |
+          REMEDIATION: Remove DONT_REQUIRE_PREAUTH from svc-monitor
+          Command: samba-tool user setattribute svc-monitor userAccountControl 512
+          Risk removed: AS-REP roasting (T1558.004)
+
+    - name: "1.3 — Rotate krbtgt account password (first rotation — execute twice)"
+      # microsoft.ad.user:
+      #   name: krbtgt
+      #   domain: "{{ domain }}"
+      #   password: "{{ krbtgt_new_password }}"  # generate with: openssl rand -base64 32
+      #   update_password: always
+      ansible.builtin.debug:
+        msg: |
+          REMEDIATION: Rotate krbtgt password (must be done TWICE, 10+ hours apart)
+          Command: samba-tool user setpassword krbtgt --random-password
+          Wait 10+ hours, then rotate again to invalidate outstanding golden tickets.
+          Risk removed: Golden ticket persistence (T1558.001)
+
+    - name: "1.4 — Add high-privilege accounts to Protected Users security group"
+      # microsoft.ad.group:
+      #   name: "Protected Users"
+      #   members:
+      #     add:
+      #       - tallen
+      #       - Administrator
+      ansible.builtin.debug:
+        msg: |
+          REMEDIATION: Add tallen and Administrator to Protected Users group
+          Command: samba-tool group addmembers "Protected Users" tallen
+          Command: samba-tool group addmembers "Protected Users" Administrator
+          Effect: Kerberos-only auth, no delegation, short TGT lifetime for these accounts
+
+    # -------------------------------------------------------------------------
+    # SECTION 2: Delegation Configuration
+    # -------------------------------------------------------------------------
+
+    - name: "2.1 — Remove unconstrained delegation from svc-backup"
+      # microsoft.ad.user:
+      #   name: svc-backup
+      #   attributes:
+      #     set:
+      #       userAccountControl: 512  # Remove TRUSTED_FOR_DELEGATION (0x80000)
+      ansible.builtin.debug:
+        msg: |
+          REMEDIATION: Remove unconstrained delegation from svc-backup
+          Current: userAccountControl includes TRUSTED_FOR_DELEGATION (flag 0x80000)
+          Target:  Configure constrained delegation to BackupSvc/backup01.meridian.local only
+          Command: samba-tool user setattribute svc-backup userAccountControl 512
+          Then configure constrained delegation via LDAP or samba-tool
+          Risk removed: TGT theft via unconstrained delegation (T1558.001)
+          Paths broken: PATH-003 steps 2-3
+
+    # -------------------------------------------------------------------------
+    # SECTION 3: ACL Remediation
+    # -------------------------------------------------------------------------
+
+    - name: "3.1 — Remove GenericWrite ACE on IT-Admins for svc-deploy"
+      # Use dacledit.py or PowerShell:
+      # dacledit.py MERIDIAN.LOCAL/tallen:'password'@dc01 \
+      #   -action remove -rights GenericWrite \
+      #   -principal svc-deploy -target-dn 'CN=IT-Admins,CN=Users,DC=meridian,DC=local'
+      ansible.builtin.debug:
+        msg: |
+          REMEDIATION: Remove GenericWrite ACE from IT-Admins for svc-deploy
+          Tool: dacledit.py -action remove -rights GenericWrite -principal svc-deploy -target-dn CN=IT-Admins,...
+          Risk removed: ACL-based privilege escalation (T1484.001)
+          Paths broken: PATH-001 step 3 (critical — this breaks the primary DA path)
+
+    - name: "3.2 — Remove svc-deploy from IT-Admins group membership"
+      # svc-deploy should not be a member of IT-Admins at all
+      # microsoft.ad.group:
+      #   name: IT-Admins
+      #   members:
+      #     remove:
+      #       - svc-deploy
+      ansible.builtin.debug:
+        msg: |
+          REMEDIATION: Remove svc-deploy from IT-Admins group
+          Command: samba-tool group removemembers IT-Admins svc-deploy
+          Rationale: Deployment automation does not require IT admin rights
+
+    # -------------------------------------------------------------------------
+    # SECTION 4: GPO / Network Hardening
+    # -------------------------------------------------------------------------
+
+    - name: "4.1 — Require SMB signing on all servers (prevents NTLM relay)"
+      # win_regedit:
+      #   path: HKLM:\SYSTEM\CurrentControlSet\Services\LanManServer\Parameters
+      #   name: requiresecuritysignature
+      #   data: 1
+      #   type: dword
+      ansible.builtin.debug:
+        msg: |
+          REMEDIATION: Require SMB signing on all servers
+          GPO path: Computer Config > Policies > Windows Settings > Security Settings > Local Policies > Security Options
+          Setting: Microsoft network server: Digitally sign communications (always) = Enabled
+          Also apply to workstations via Workstation Baseline GPO
+          Risk removed: NTLM relay attacks
+
+    - name: "4.2 — Enable audit policy for Kerberos Service Ticket Operations on DCs"
+      ansible.builtin.debug:
+        msg: |
+          REMEDIATION: Enable audit for Kerberos Service Ticket Operations
+          GPO path: Computer Config > Policies > Windows Settings > Security Settings > Advanced Audit Policy
+          Category: Account Logon > Audit Kerberos Service Ticket Operations = Success
+          Required for: Event 4769 (Kerberoasting detection)
+          Also enable: Audit Kerberos Authentication Service = Success,Failure (for 4768/AS-REP)
+          Also enable: Audit Directory Service Access = Success (for 4662/DCSync)
+
+    - name: "4.3 — Deploy Fine-Grained Password Policy for service accounts"
+      ansible.builtin.debug:
+        msg: |
+          REMEDIATION: Create FGPP for service accounts
+          Command: samba-tool domain passwordsettings pso create \
+            --name=ServiceAccountPSO \
+            --precedence=10 \
+            --min-pwd-length=25 \
+            --complexity=on \
+            --history-length=24 \
+            --max-pwd-age=0 \
+            --min-pwd-age=1
+          Apply to OU=ServiceAccounts,DC=meridian,DC=local
+          Risk removed: Kerberoasting success rate (weak passwords)
+
+  post_tasks:
+    - name: "Posture summary — hardening tasks complete"
+      ansible.builtin.debug:
+        msg: |
+          =====================================================
+          HARDENING APPLIED — POSTURE DELTA
+          =====================================================
+          Risks removed:
+            - AS-REP roasting: svc-legacy, svc-monitor (1.1, 1.2)
+            - Golden ticket persistence risk: krbtgt rotation (1.3)
+            - Unconstrained delegation TGT theft: svc-backup (2.1)
+            - ACL privilege escalation: svc-deploy GenericWrite (3.1, 3.2)
+            - NTLM relay surface: SMB signing (4.1)
+
+          Attack paths broken:
+            - PATH-001 step 3 (primary DA path) — GenericWrite removed
+            - PATH-002 step 1 — AS-REP roasting removed
+            - PATH-003 steps 2-3 — unconstrained delegation removed
+
+          Remaining risks (not addressed in this playbook):
+            - Kerberoastable SPNs (migrate to gMSA — separate change)
+            - HR workstation AppLocker gap (GPO authoring required)
+            - Tiered admin model (architectural change)
+          =====================================================

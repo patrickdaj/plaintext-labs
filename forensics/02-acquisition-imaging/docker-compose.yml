@@ -1,0 +1,12 @@
+# Module 02 — Acquisition & Imaging lab environment.
+# dc3dd in a Debian container; source device created at runtime (no large files committed).
+services:
+  lab:
+    build: .
+    image: plaintext/acquisition-imaging:1.0
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    # Requires --privileged (or at minimum SYS_ADMIN) for loop device operations
+    privileged: true
+    command: sleep infinity

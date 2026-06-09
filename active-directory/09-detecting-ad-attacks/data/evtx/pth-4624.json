@@ -1,0 +1,50 @@
+[
+  {
+    "System": {
+      "EventID": 4624,
+      "TimeCreated": "2024-01-15T04:11:07.000Z",
+      "Computer": "dc01.meridian.local",
+      "Channel": "Security"
+    },
+    "EventData": {
+      "SubjectUserSid": "S-1-0-0",
+      "SubjectUserName": "-",
+      "SubjectDomainName": "-",
+      "TargetUserSid": "S-1-5-21-1000-1000-1000-500",
+      "TargetUserName": "Administrator",
+      "TargetDomainName": "MERIDIAN",
+      "LogonType": "3",
+      "LogonProcessName": "NtLmSsp",
+      "AuthenticationPackageName": "NTLM",
+      "WorkstationName": "KALI-ATTACKER",
+      "IpAddress": "10.10.0.20",
+      "IpPort": "52345",
+      "LogonGuid": "{00000000-0000-0000-0000-000000000000}"
+    },
+    "_description": "PTH signal: Administrator logon via NTLM (NtLmSsp) Type 3 from 10.10.0.20 (attacker). No Kerberos used — pass-the-hash."
+  },
+  {
+    "System": {
+      "EventID": 4624,
+      "TimeCreated": "2024-01-15T09:05:22.000Z",
+      "Computer": "fs01.meridian.local",
+      "Channel": "Security"
+    },
+    "EventData": {
+      "SubjectUserSid": "S-1-0-0",
+      "SubjectUserName": "-",
+      "SubjectDomainName": "-",
+      "TargetUserSid": "S-1-5-21-1000-1000-1000-1103",
+      "TargetUserName": "jsmith",
+      "TargetDomainName": "MERIDIAN",
+      "LogonType": "3",
+      "LogonProcessName": "Kerberos",
+      "AuthenticationPackageName": "Kerberos",
+      "WorkstationName": "WS-FIN-01",
+      "IpAddress": "10.10.0.51",
+      "IpPort": "49322",
+      "LogonGuid": "{a1b2c3d4-e5f6-7890-abcd-ef1234567890}"
+    },
+    "_description": "Benign: jsmith accessing file share via Kerberos — should NOT match PTH rule (AuthPackage=Kerberos)"
+  }
+]

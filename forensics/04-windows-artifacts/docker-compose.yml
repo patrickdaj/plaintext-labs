@@ -1,0 +1,10 @@
+# Module 04 — Windows Artifacts lab environment.
+# chainsaw + python-registry; seed data in data/ (JSONL events + registry JSON).
+services:
+  lab:
+    build: .
+    image: plaintext/windows-artifacts:1.0
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

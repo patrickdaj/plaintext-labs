@@ -1,0 +1,21 @@
+# Vulnerability 2: unpinned action version + over-broad permissions
+name: IaC Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: write-all  # VULNERABLE: over-broad; should be scoped per-job
+
+jobs:
+  checkov:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4  # Missing SHA pin
+
+      - name: Run checkov
+        uses: bridgecrewio/checkov-action@v12  # VULNERABLE: unpinned tag, not SHA
+        with:
+          directory: .
+          soft_fail: false

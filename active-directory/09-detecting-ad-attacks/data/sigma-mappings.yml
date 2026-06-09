@@ -1,0 +1,31 @@
+# Chainsaw sigma mapping for Windows Security event log fields.
+# Minimal mapping for the AD detection lab.
+name: sigma-event-logs-security
+kind: json
+rules:
+  sigma:
+    group-by:
+      - Provider
+title: Windows Security Events — Sigma Field Mappings
+fields:
+  EventID: System.EventID
+  TimeCreated: System.TimeCreated
+  Computer: System.Computer
+  TargetUserName: EventData.TargetUserName
+  TargetDomainName: EventData.TargetDomainName
+  ServiceName: EventData.ServiceName
+  TicketEncryptionType: EventData.TicketEncryptionType
+  TicketOptions: EventData.TicketOptions
+  PreAuthType: EventData.PreAuthType
+  Status: EventData.Status
+  IpAddress: EventData.IpAddress
+  LogonType: EventData.LogonType
+  AuthenticationPackageName: EventData.AuthenticationPackageName
+  LogonProcessName: EventData.LogonProcessName
+  WorkstationName: EventData.WorkstationName
+  SubjectUserName: EventData.SubjectUserName
+  SubjectUserSid: EventData.SubjectUserSid
+  SubjectDomainName: EventData.SubjectDomainName
+  ObjectType: EventData.ObjectType
+  ObjectName: EventData.ObjectName
+  Properties: EventData.Properties

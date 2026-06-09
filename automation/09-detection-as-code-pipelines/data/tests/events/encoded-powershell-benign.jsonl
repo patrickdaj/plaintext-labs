@@ -1,0 +1,1 @@
+{"EventID": 4688, "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "CommandLine": "powershell.exe -NonInteractive -NoProfile -File C:\\Scripts\\backup.ps1", "ParentImage": "C:\\Windows\\System32\\taskeng.exe", "User": "NT AUTHORITY\\SYSTEM"}

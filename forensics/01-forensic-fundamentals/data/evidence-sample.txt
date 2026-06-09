@@ -1,0 +1,22 @@
+Meridian Financial — Incident Response Evidence
+================================================
+Case ID    : MFB-IR-2024-0042
+Description: Suspicious text file recovered from USB drive found on Finance floor
+Collected  : 2024-03-15T14:23:00Z
+Collector  : IR Analyst (first responder)
+
+Contents of file as found on device:
+
+  Transaction log entry — ABNORMAL
+  Timestamp  : 2024-03-15 02:17:44 UTC
+  UserID     : svc_batch_finance
+  Action     : EXPORT_ALL
+  Target     : /shares/finance/Q1_2024_restricted/
+  Destination: \\10.99.4.22\drop$
+  Status     : COMPLETED
+  Bytes      : 2,847,392,104
+
+Note: Service account svc_batch_finance does not have authorized access to
+the restricted Q1 share. This export occurred outside business hours.
+
+-- END OF FILE --

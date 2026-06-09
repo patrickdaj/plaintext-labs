@@ -1,0 +1,10 @@
+# Module 01 — Primitives in Practice
+services:
+  lab:
+    build: .
+    image: plaintext/crypto-primitives:1.0
+    container_name: crypto-primitives-lab
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

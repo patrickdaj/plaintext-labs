@@ -1,0 +1,25 @@
+# Module 05 — Building MCP Servers
+# One container: the MCP server. No Ollama needed — this module is about the protocol.
+services:
+  mcp-server:
+    build: .
+    image: plaintext/meridian-mcp
+    container_name: ai05-mcp-server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/lab
+    working_dir: /lab
+    environment:
+      - DATA_DIR=/lab/data
+    command: python3 server/server.py
+
+  lab:
+    image: python:3.12-slim
+    container_name: ai05-lab
+    depends_on:
+      - mcp-server
+    volumes:
+      - ./:/lab
+    working_dir: /lab
+    command: sleep infinity

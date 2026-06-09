@@ -1,0 +1,81 @@
+services:
+  samba-dc:
+    build:
+      context: ../02-enumeration
+      dockerfile: Dockerfile.dc
+    image: plaintext/meridian-dc:latest
+    container_name: meridian-dc
+    hostname: dc01
+    domainname: meridian.local
+    environment:
+      SAMBA_DOMAIN: MERIDIAN
+      SAMBA_REALM: MERIDIAN.LOCAL
+      SAMBA_ADMIN_PASSWORD: "M3rid1an@Admin!"
+    networks:
+      ad-net:
+        ipv4_address: 10.10.0.10
+    volumes:
+      - ../02-enumeration/data:/data:ro
+    healthcheck:
+      test: ["CMD", "samba-tool", "domain", "info", "dc01.meridian.local"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  # Finance workstation — SMB enabled, signing NOT required
+  ws-fin-01:
+    build:
+      context: .
+      dockerfile: Dockerfile.workstation
+    image: plaintext/meridian-workstation:latest
+    container_name: ws-fin-01
+    hostname: ws-fin-01
+    environment:
+      WS_ROLE: finance
+    networks:
+      ad-net:
+        ipv4_address: 10.10.0.101
+    depends_on:
+      samba-dc:
+        condition: service_healthy
+
+  # IT workstation — SMB enabled, signing NOT required
+  ws-it-01:
+    build:
+      context: .
+      dockerfile: Dockerfile.workstation
+    image: plaintext/meridian-workstation:latest
+    container_name: ws-it-01
+    hostname: ws-it-01
+    environment:
+      WS_ROLE: it
+    networks:
+      ad-net:
+        ipv4_address: 10.10.0.102
+    depends_on:
+      samba-dc:
+        condition: service_healthy
+
+  attacker:
+    build:
+      context: .
+      dockerfile: Dockerfile.attacker
+    image: plaintext/lateral-attacker:latest
+    container_name: lateral-attacker
+    depends_on:
+      - samba-dc
+      - ws-fin-01
+      - ws-it-01
+    networks:
+      ad-net:
+        ipv4_address: 10.10.0.20
+    dns:
+      - 10.10.0.10
+    command: sleep infinity
+
+networks:
+  ad-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24

@@ -1,0 +1,10 @@
+# Module 05 — Browser & Application Artifacts lab environment.
+# hindsight + sqlite3; data/History is a committed Chrome SQLite database (~28KB).
+services:
+  lab:
+    build: .
+    image: plaintext/browser-artifacts:1.0
+    working_dir: /lab
+    volumes:
+      - ./:/lab
+    command: sleep infinity

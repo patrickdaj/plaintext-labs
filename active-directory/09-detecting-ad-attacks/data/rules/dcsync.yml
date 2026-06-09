@@ -1,0 +1,40 @@
+title: DCSync — Replication Rights Exercised by Non-DC Account
+id: d0c7f8e3-5b4a-6c9d-1e8f-0a7b6c5d4e3f
+status: test
+description: |
+  Detects DCSync attack — DS-Replication-Get-Changes-All rights exercised by a non-DC account.
+  Normal replication only occurs between DC machine accounts (names ending in $). A user account
+  or service account exercising replication rights is a strong indicator of DCSync / secretsdump.
+  Requires: Audit Directory Service Access (Success) on DCs.
+author: Plaintext Security
+date: 2024-01-01
+references:
+  - https://attack.mitre.org/techniques/T1003/006/
+  - https://adsecurity.org/?p=1729
+tags:
+  - attack.credential_access
+  - attack.t1003.006
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 4662
+    ObjectType|contains:
+      - '19195a5b-6da0-11d0-afd3-00c04fd930c9'  # domainDNS object class
+    Properties|contains:
+      - '1131f6ad-9c07-11d1-f79f-00c04fc2dcd2'  # DS-Replication-Get-Changes
+      - '1131f6ae-9c07-11d1-f79f-00c04fc2dcd2'  # DS-Replication-Get-Changes-All
+      - '89e95b76-444d-4c62-991a-0facbeda640c'  # DS-Replication-Get-Changes-In-Filtered-Set
+  filter_dc_accounts:
+    SubjectUserName|endswith: '$'  # Machine accounts (DCs) are expected to replicate
+  condition: selection and not filter_dc_accounts
+falsepositives:
+  - Azure AD Connect (uses replication rights for sync — exclude the sync account's SID)
+  - Third-party AD management tools with replication permissions
+level: critical
+audit_policy_required:
+  category: 'DS Access'
+  subcategory: 'Audit Directory Service Access'
+  setting: 'Success'
+  note: 'Also requires SACL on the domain object with DS-Replication-Get-Changes-All audited.'

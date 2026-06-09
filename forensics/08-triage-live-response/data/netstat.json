@@ -1,0 +1,7 @@
+[
+  {"Pid": 412,  "Type": "TCP", "Laddr": "0.0.0.0:22",          "Raddr": "",                    "Status": "LISTEN"},
+  {"Pid": 4012, "Type": "TCP", "Laddr": "0.0.0.0:80",          "Raddr": "",                    "Status": "LISTEN"},
+  {"Pid": 4012, "Type": "TCP", "Laddr": "0.0.0.0:443",         "Raddr": "",                    "Status": "LISTEN"},
+  {"Pid": 3847, "Type": "TCP", "Laddr": "172.18.0.3:51234",    "Raddr": "198.51.100.42:4444",  "Status": "ESTABLISHED"},
+  {"Pid": 1024, "Type": "TCP", "Laddr": "127.0.0.1:5432",      "Raddr": "127.0.0.1:51100",     "Status": "ESTABLISHED"}
+]
