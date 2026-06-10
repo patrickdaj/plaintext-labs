@@ -60,3 +60,17 @@ kind of numbering drift the PowerShell module insertion caused.
 ```bash
 python3 scripts/check_consistency.py --tracks ../plaintext/tracks --labs .
 ```
+
+## Opting a lab into CI (`.ci-demo`)
+
+Labs CI (`.github/workflows/labs-ci.yml`) is **opt-in**: a lab's demo is run/enforced only if the
+lab directory contains a `.ci-demo` marker file. This is deliberate — the curriculum intentionally
+ships labs whose `make demo` is *not* expected to pass in CI:
+
+- **learner-exercise labs** — the demo fails until the learner completes it (e.g. a Dockerfile the
+  learner must write, or `# YOU:` scaffolds);
+- **VM / cloud labs** — they need Windows, a hypervisor, or real cloud credentials.
+
+Add a `.ci-demo` to a lab **only once its `make up && make demo && make down` is green on a Linux
+runner**. Seeded with the validated reference exemplars (`offensive/06-web-injection`,
+`defensive/08-detection-as-code`, `defensive/07-log-parsing`); grow the set as more labs are confirmed.
