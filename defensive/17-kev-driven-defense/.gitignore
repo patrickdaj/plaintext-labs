@@ -1,0 +1,9 @@
+# The exploit target is pulled on demand by `make target-up`, never committed.
+target/
+# Learner artifacts / grader output stay out of the repo.
+receipt.json
+*.pcap
+*.log.gz
+# The bundled sample access log IS committed seed data — re-include it despite the
+# repo-wide `*.log` ignore (the demo's detection step reads it; it must ship).
+!data/solr_access.log
