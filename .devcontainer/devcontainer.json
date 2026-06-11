@@ -5,7 +5,7 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": { "moby": false },
     "ghcr.io/devcontainers/features/python:1": { "version": "3.12" }
   },
-  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y make",
+  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y make && mkdir -p ~/.docker && echo '{\"auths\":{}}' > ~/.docker/config.json",
   "postAttachCommand": "echo 'plaintext-labs ready. Pick a lab:  cd <track>/<module> && make up'",
   "customizations": {
     "vscode": {
