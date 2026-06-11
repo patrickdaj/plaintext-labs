@@ -5,9 +5,6 @@ set -euo pipefail
 
 echo "==> Seeding Meridian Financial IAM configuration in LocalStack..."
 
-ENDPOINT="--endpoint-url http://localstack:4566"
-ACCOUNT_ID="000000000001"
-
 # ----- Users -----
 awslocal iam create-user --user-name admin-svc 2>/dev/null || true
 awslocal iam create-user --user-name dev-alice 2>/dev/null || true
@@ -44,7 +41,10 @@ awslocal iam create-policy \
     ]
   }' 2>/dev/null || true
 
-POLICY_ARN="arn:aws:iam::000000000001:policy/MeridianDevPolicy"
+# Derive the policy ARN from LocalStack rather than hardcoding the account ID
+# (LocalStack assigns its own account, e.g. 000000000000).
+POLICY_ARN=$(awslocal iam list-policies --scope Local \
+  --query "Policies[?PolicyName=='MeridianDevPolicy'].Arn" --output text)
 
 awslocal iam attach-user-policy \
   --user-name dev-alice \
