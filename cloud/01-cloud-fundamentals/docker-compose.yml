@@ -27,6 +27,8 @@ services:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=us-east-1
+      # Point awslocal at the LocalStack container by name (same as the lab service)
+      - LOCALSTACK_HOST=localstack
     volumes:
       - ./:/lab
     # Run setup once then exit

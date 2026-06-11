@@ -11,9 +11,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       jq \
     && rm -rf /var/lib/apt/lists/*
 
-# Install AWS CLI v2 (official binary, pinned version)
+# Install AWS CLI v2 (official binary, pinned version).
+# Pick the bundle that matches the build architecture so the image works on
+# both amd64 hosts and arm64 (Apple Silicon) without emulation crashes.
 ARG AWSCLI_VERSION=2.17.20
-RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWSCLI_VERSION}.zip" \
+RUN case "$(uname -m)" in \
+      x86_64)  AWSCLI_ARCH=x86_64 ;; \
+      aarch64|arm64) AWSCLI_ARCH=aarch64 ;; \
+      *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWSCLI_ARCH}-${AWSCLI_VERSION}.zip" \
       -o /tmp/awscliv2.zip \
     && unzip /tmp/awscliv2.zip -d /tmp \
     && /tmp/aws/install \
