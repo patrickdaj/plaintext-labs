@@ -8,11 +8,11 @@ Plaintext is split across two repos:
 
 | Repo | Holds | You… |
 |------|-------|------|
-| [`plaintext`](https://github.com/plaintext-security/plaintext) | the curriculum prose — module concepts, the *Learn* path, lab instructions | **read** it (published at the site) |
-| `plaintext-labs` (this repo) | the runnable scaffolding — `docker-compose`, Dockerfiles, seed data, harnesses, capstone starters | **clone & build** it |
+| [`plaintext`](https://github.com/plaintext-security/plaintext) | the curriculum prose — module concepts, the *Learn* path | **read** it (published at the site) |
+| `plaintext-labs` (this repo) | the runnable scaffolding — `docker-compose`, Dockerfiles, seed data, harnesses, capstone starters, **and `lab.md` instructions** | **fork, clone & build** it |
 
-A lab's *instructions* live in `plaintext`; its *environment* lives here. Each lab tells you which
-directory to `make up`.
+Each module directory contains a `lab.md` alongside its environment files — open it in a split pane
+and never leave your IDE. Fork this repo to keep your solutions in your own private copy.
 
 ## Layout
 
@@ -38,7 +38,7 @@ make demo    # see the worked example (where a lab provides one)
 make down    # stop it
 ```
 
-Then follow that module's `lab.md` in the [curriculum](https://github.com/plaintext-security/plaintext).
+Then open `lab.md` in the same directory for instructions.
 
 ## Zero local setup (optional)
 
@@ -49,7 +49,7 @@ Don't want to install Docker locally? This repo ships a [`.devcontainer`](.devco
 so it opens with everything ready (Docker-in-Docker + tooling) in any of:
 
 - **GitHub Codespaces** — click the badge above or "Code → Codespaces → Create"; runs in your browser on the free monthly tier.
-- **DevPod** — click the badge above; open-source and provider-agnostic, runs the same workspace locally or on any cloud.
+- **DevPod** — click the badge above; open-source and provider-agnostic, runs the same workspace locally or on any cloud. If you're working from a fork, paste your fork URL into DevPod instead of using the badge (which points at the upstream).
 - **VS Code Dev Containers** — "Reopen in Container" locally.
 
 Then `cd <track>/<module> && make up` as usual.
